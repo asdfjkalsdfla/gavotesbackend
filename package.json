@@ -12,6 +12,7 @@
     "progress": "^2.0.1",
     "protobufjs": "^6.10.1",
     "react-router-dom": "^5.2.0",
+    "shapefile": "^0.6.6",
     "simplify-geojson": "^1.0.4",
     "xml2js": "^0.4.23"
   }
