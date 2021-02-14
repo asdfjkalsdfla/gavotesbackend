@@ -1,0 +1,69 @@
+[
+    {
+        "name": "2021_senate_runoff",
+        "label": "2021 Senate Runoff",
+        "date": "2021-01-05",
+        "absenteeElectionNumber" : "35211",
+        "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2021/",
+        "absenteeFiles" : "./data/absentee/2021/data/*.csv",
+        "absenteeSummarize" : true,
+        "resultsDownload" : false,
+        "resultsSummarize" : false,
+        "races" : [
+            ""
+        ]
+    },
+    {
+        "name": "2020_general",
+        "label": "2020 General",
+        "date": "2020-11-03",
+        "absenteeElectionNumber" : "35209",
+        "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2020/",
+        "absenteeFiles" : "./data/absentee/2020/data/*.csv",
+        "absenteeSummarize" : true,
+        "resultsDownload" : true,
+        "resultsSummarize" : true,
+        "resultsClarityURL" : "https://results.enr.clarityelections.com/GA/105369/web.264614/#/summary",
+        "races" : [
+            {
+                "id" : "president",
+                "label" : "President",
+                "clarityName": "President of the United States",
+                "republican" : "Trump",
+                "democrat" : "Biden"
+            },
+            {
+                "id" : "senate",
+                "label" : "Senate",
+                "clarityName": "US Senate (Perdue)",
+                "republican" : "Perdue",
+                "democrat" : "Ossoff"
+            }
+        ]
+    },
+    {
+        "name": "2018_general",
+        "label": "2018 General",
+        "date": "2018-11-06",
+        "absenteeElectionNumber" : "TBD",
+        "absenteeDownload" : false,
+        "absenteeSummarize" : false,
+        "resultsDownload" : false,
+        "resultsSummarize" : false,
+        "resultsClarityURL" : "https://results.enr.clarityelections.com/GA/105369/web.264614/#/summary",
+        "races" : [
+            {
+                "name": "President of the United States",
+                "republican" : "Trump",
+                "democrat" : "Biden"
+            },
+            {
+                "name": "President of the United States",
+                "republican" : "Trump",
+                "democrat" : "Biden"
+            }
+        ]
+    }
+]
