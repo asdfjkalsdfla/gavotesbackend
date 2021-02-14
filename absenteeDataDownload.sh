@@ -5,6 +5,8 @@ set -x
 ELECTION_NUMBER="$1"
 ABSENTEE_DATA_DIR="$2"
 
+mkdir -p $ABSENTEE_DATA_DIR
+
 curl -sS -D - https://elections.sos.ga.gov/Elections/downLoadVPHFile.do --data-raw "cdElecCat=&idElection=$ELECTION_NUMBER&cdFileType=AB&cdStaticFile=" || true
 
 DLFile="$ABSENTEE_DATA_DIR/$ELECTION_NUMBER-`date +%Y%m%d`.zip"

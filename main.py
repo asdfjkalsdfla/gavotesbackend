@@ -19,7 +19,7 @@ def main():
     for election in elections:
 
         if(election["absenteeDownload"]):
-            process=Popen('./absenteeDataDownload.sh %s %s' % (str(election["electionNumber"]),str(election["absenteeFileDir"])), shell=True)
+            process=Popen('./absenteeDataDownload.sh %s %s' % (str(election["absenteeElectionNumber"]),str(election["absenteeFileDir"])), shell=True)
             process.wait()
 
         if(election["absenteeSummarize"]):

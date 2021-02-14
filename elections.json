@@ -4,7 +4,7 @@
         "label": "2021 Senate Runoff",
         "date": "2021-01-05",
         "absenteeElectionNumber" : "35211",
-        "absenteeDownload" : false,
+        "absenteeDownload" : true,
         "absenteeFileDir" : "./data/absentee/2021/",
         "absenteeFiles" : "./data/absentee/2021/data/*.csv",
         "absenteeSummarize" : true,
