@@ -12,13 +12,16 @@ const xmlParser = new xml2js.Parser();
 // TODO: find a better way to do this
 // Part of the challenges is parties aren't setup consistently in the results
 const candidateNameToParty = (candidate) => {
-  return candidate.includes("Loeffler") ||
-    candidate.includes("Trump") ||
-    candidate.includes("Perdue")
+  const candidateCaps = candidate.toUpperCase();
+  return candidateCaps.includes("LOEFFLER") ||
+    candidateCaps.includes("TRUMP") ||
+    candidateCaps.includes("PERDUE") ||
+    candidateCaps.includes("KEMP")
     ? "republican"
-    : candidate.includes("Biden") ||
-      candidate.includes("Ossoff") ||
-      candidate.includes("Warnock")
+    : candidateCaps.includes("BIDEN") ||
+      candidateCaps.includes("OSSOFF") ||
+      candidateCaps.includes("WARNOCK") ||
+      candidateCaps.includes("ABRAMS")
     ? "democratic"
     : "other";
 };
@@ -62,7 +65,12 @@ const getListOfCountyResultFiles = async (electionID, state) => {
 // ******************************************************
 // Download the compressed result file
 // ******************************************************
-const getXmlPrecinctResultFileForACounty = (state, county, election, version) => {
+const getXmlPrecinctResultFileForACounty = (
+  state,
+  county,
+  election,
+  version
+) => {
   const fileURL = `https://results.enr.clarityelections.com/${state}/${county}/${election}/${version}/reports/detailxml.zip`;
   try {
     // should really re-evaluate suing http get vs. fetch
@@ -114,7 +122,8 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
   file.ElectionResult.Contest.filter(
     (contest) =>
       contest["$"].text.includes("US Senate") ||
-      contest["$"].text.includes("President of the United States")
+      contest["$"].text.includes("President of the United States") ||
+      contest["$"].text.includes("Governor")
   ).forEach((contest) => {
     const resultSet = [];
     if (!contest.Choice) {
@@ -196,7 +205,8 @@ const getServiceResultsForCounty = async (state, county, election, version) => {
   const contestByKey = summary.forEach((contest, index) => {
     if (
       contest.C.includes("US Senate") ||
-      contest.C.includes("President of the United States")
+      contest.C.includes("President of the United States") ||
+      contest.C.includes("Governor")
     ) {
       contest.C = contest.C.split("/")[0].replace(
         "Special Election",
@@ -274,7 +284,7 @@ cliParser.add_argument("-s", "--state", {
   help: "The State code for Clarity",
 });
 cliParser.add_argument("-r", "--races", {
-  metavar: 'N',
+  metavar: "N",
   nargs: "+",
   help: "The list of races to pull",
 });
@@ -285,8 +295,10 @@ cliParser.add_argument("-o", "--outFile", {
 
 const { electionNumber, state, races, outFile } = cliParser.parse_args();
 
-const fileName = outFile ? outFile : `electionResults_${state}_${electionNumber}.csv`;
-const resultFileWriter = fs.createWriteStream(fileName)
+const fileName = outFile
+  ? outFile
+  : `electionResults_${state}_${electionNumber}.csv`;
+const resultFileWriter = fs.createWriteStream(fileName);
 
 resultFileWriter.write("race,county,precinct,candidate,party,mode,votes\n");
 getListOfCountyResultFiles(electionNumber, state);

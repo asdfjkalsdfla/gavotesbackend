@@ -46,6 +46,3 @@ for shape in ${!shape@}; do
     yarn shp2json $GEOJSON_DATA_DIR/$GEOJSON_YEAR/${shape[extractFile]} -o $geoJSONFileName
     ./geoJSONSimplify.js  -i $geoJSONFileName -o $geoJSONSimpleFileName -p
 done 
-
-
-

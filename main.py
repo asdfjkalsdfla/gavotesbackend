@@ -27,6 +27,9 @@ def main():
                 spark, election["name"], election["date"], election["absenteeFiles"])
             abs.summarizeData(gbLevels)
             abs.exportSummaries()
+        if(election["resultsDownload"]):
+            processResultDownload=Popen('./electionResultsPull.js -e %s -o %s' % (str(election["resultsClarityID"]),str(election["resultsDownloadFile"])), shell=True)
+            processResultDownload.wait()
 
 
 main()

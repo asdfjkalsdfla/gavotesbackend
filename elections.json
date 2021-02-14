@@ -7,8 +7,10 @@
         "absenteeDownload" : false,
         "absenteeFileDir" : "./data/absentee/2021/",
         "absenteeFiles" : "./data/absentee/2021/data/*.csv",
-        "absenteeSummarize" : true,
+        "absenteeSummarize" : false,
         "resultsDownload" : false,
+        "resultsDownloadFile" : "./data/electionResults/2021/2021_senate_runoff.csv",
+        "resultsClarityID" : "107556",
         "resultsSummarize" : false,
         "races" : [
             ""
@@ -23,9 +25,10 @@
         "absenteeFileDir" : "./data/absentee/2020/",
         "absenteeFiles" : "./data/absentee/2020/data/*.csv",
         "absenteeSummarize" : false,
-        "resultsDownload" : true,
+        "resultsDownload" : false,
+        "resultsClarityID" : "105369",
+        "resultsDownloadFile" : "./data/electionResults/2020/2020_general.csv",
         "resultsSummarize" : true,
-        "resultsClarityURL" : "https://results.enr.clarityelections.com/GA/105369/web.264614/#/summary",
         "races" : [
             {
                 "id" : "president",
@@ -50,9 +53,10 @@
         "absenteeElectionNumber" : "TBD",
         "absenteeDownload" : false,
         "absenteeSummarize" : false,
-        "resultsDownload" : false,
+        "resultsDownload" : true,
+        "resultsClarityID" : "91639",
+        "resultsDownloadFile" : "./data/electionResults/2018/2018_general.csv",
         "resultsSummarize" : false,
-        "resultsClarityURL" : "https://results.enr.clarityelections.com/GA/105369/web.264614/#/summary",
         "races" : [
             {
                 "name": "President of the United States",
