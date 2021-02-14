@@ -2,7 +2,7 @@
 set -e
 set -x
 
-GEOJSON_DATA_DIR="data/geojson/"
+GEOJSON_DATA_DIR="data/geojson/precincts/"
 
 declare -A shape0=(
     [year]='2020'
@@ -36,11 +36,16 @@ declare -n shape
 for shape in ${!shape@}; do
     GEOJSON_YEAR="${shape[year]}"
     # echo $GEOJSON_YEAR
-    mkdir -p $GEOJSON_DATA_DIR/$GEOJSON_YEAR
+    mkdir -p "$GEOJSON_DATA_DIR/$GEOJSON_YEAR/"
+    mkdir -p "$GEOJSON_DATA_DIR/${GEOJSON_YEAR}_simple/"
     DLFile="$GEOJSON_DATA_DIR/$GEOJSON_YEAR/`date +%Y%m%d`.zip"
+    geoJSONFileName="$GEOJSON_DATA_DIR/$GEOJSON_YEAR/GA_precincts_$GEOJSON_YEAR.json"
+    geoJSONSimpleFileName="$GEOJSON_DATA_DIR/${GEOJSON_YEAR}_simple/GA_precincts_simple_$GEOJSON_YEAR.json"
     curl "${shape[dlFile]}" -L -o $DLFile
     unzip -o $DLFile -d $GEOJSON_DATA_DIR/$GEOJSON_YEAR
-    yarn shp2json data/geojson/$GEOJSON_YEAR/${shape[extractFile]} -o data/geojson/$GEOJSON_YEAR/GeoJSON$GEOJSON_YEAR.json
+    yarn shp2json $GEOJSON_DATA_DIR/$GEOJSON_YEAR/${shape[extractFile]} -o $geoJSONFileName
+    ./geoJSONSimplify.js  -i $geoJSONFileName -o $geoJSONSimpleFileName -p
 done 
+
 
 
