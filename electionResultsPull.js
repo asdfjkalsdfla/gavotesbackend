@@ -5,6 +5,7 @@ const http = require("https");
 const AdmZip = require("adm-zip");
 const xml2js = require("xml2js");
 const fetch = require("node-fetch");
+const { exit } = require("process");
 
 // Code for the XML Parser
 const xmlParser = new xml2js.Parser();
@@ -53,13 +54,30 @@ const getListOfCountyResultFiles = async (electionID, state) => {
   const esRequest = await fetch(
     `https://results.enr.clarityelections.com/${state}/${electionID}/${version}/json/en/electionsettings.json`
   );
-  const esData = await esRequest.json();
 
-  // now download all those files
-  esData.settings.electiondetails.participatingcounties.forEach((county) => {
-    const split = county.split("|");
-    getXmlPrecinctResultFileForACounty(state, split[0], split[1], split[2]);
-  });
+  if (esRequest.ok) {
+    const esData = await esRequest.json();
+
+    // now download all those files
+    esData.settings.electiondetails.participatingcounties.forEach((county) => {
+      const split = county.split("|");
+      getXmlPrecinctResultFileForACounty(state, split[0], split[1], split[2]);
+    });
+  } else {
+    // if we don't get a result, we're likely on the old verison.
+    // we can get that data too!
+    const electionDetailsRequest = await fetch(
+      `https://results.enr.clarityelections.com/${state}/${electionID}/${version}/json/details.json`
+    );
+    const electionDetails = await electionDetailsRequest.json();
+    electionDetails.Contests[0].Eid.forEach(async (countyElectionID,index) => {
+      const county = electionDetails.Contests[0].P[index].replace(" ","_");
+      const url = `https://results.enr.clarityelections.com/${state}/${county}/${countyElectionID}/current_ver.txt`; 
+      const versionCountyRequest = await fetch(url);
+      const versionCounty = await versionCountyRequest.text();
+      getXmlPrecinctResultFileForACounty(state, county, countyElectionID, versionCounty);
+    });
+  }
 };
 
 // ******************************************************
