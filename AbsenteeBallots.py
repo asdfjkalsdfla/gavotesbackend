@@ -75,4 +75,4 @@ class AbsenteeBallots:
                 .groupBy(F.spark_partition_id())\
                 .agg(F.collect_list("json").alias("json_list"))\
                 .select(F.col("json_list").cast("string"))\
-                .write.mode("overwrite").text("./absentee_ballots_summary/"+self.election+"/"+summary+".json")
+                .write.mode("overwrite").text("./data/absenteeSummary/"+self.election+"/"+summary+".json")
