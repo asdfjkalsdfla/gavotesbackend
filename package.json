@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "@turf/simplify": "^5.1.5",
+    "@turf/turf": "^5.1.6",
+    "adm-zip": "^0.4.16",
+    "argparse": "^2.0.1",
+    "async": "^2.6.1",
+    "csv": "^4.0.0",
+    "csvtojson": "^2.0.8",
+    "lodash": "^4.17.11",
+    "node-fetch": "^2.2.0",
+    "progress": "^2.0.1",
+    "protobufjs": "^6.10.1",
+    "react-router-dom": "^5.2.0",
+    "simplify-geojson": "^1.0.4",
+    "xml2js": "^0.4.23"
+  }
+}
