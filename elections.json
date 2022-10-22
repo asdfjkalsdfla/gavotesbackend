@@ -1,5 +1,19 @@
 [
     {
+        "name": "2022_general",
+        "label": "2022 General Election",
+        "date": "2022-11-08",
+        "absenteeElectionNumber" : "36269",
+        "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2022/",
+        "absenteeFiles" : "./data/absentee/2022/data/*.csv",
+        "absenteeSummarize" : false,
+        "resultsDownload" : false,
+        "resultsDownloadFile" : "./data/electionResults/2022/2022_general_election.csv",
+        "resultsClarityID" : "TBD",
+        "resultsSummarize" : false
+    },
+    {
         "name": "2021_senate_runoff",
         "label": "2021 Senate Runoff",
         "date": "2021-01-05",
@@ -11,10 +25,7 @@
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2021/2021_senate_runoff.csv",
         "resultsClarityID" : "107556",
-        "resultsSummarize" : false,
-        "races" : [
-            ""
-        ]
+        "resultsSummarize" : true
     },
     {
         "name": "2020_general",
@@ -28,46 +39,34 @@
         "resultsDownload" : false,
         "resultsClarityID" : "105369",
         "resultsDownloadFile" : "./data/electionResults/2020/2020_general.csv",
-        "resultsSummarize" : true,
-        "races" : [
-            {
-                "id" : "president",
-                "label" : "President",
-                "clarityName": "President of the United States",
-                "republican" : "Trump",
-                "democrat" : "Biden"
-            },
-            {
-                "id" : "senate",
-                "label" : "Senate",
-                "clarityName": "US Senate (Perdue)",
-                "republican" : "Perdue",
-                "democrat" : "Ossoff"
-            }
-        ]
+        "resultsSummarize" : true
     },
     {
         "name": "2018_general",
         "label": "2018 General",
         "date": "2018-11-06",
-        "absenteeElectionNumber" : "TBD",
+        "absenteeElectionNumber" : "34147",
         "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2018/",
+        "absenteeFiles" : "./data/absentee/2018/data/*.csv",
         "absenteeSummarize" : false,
-        "resultsDownload" : true,
+        "resultsDownload" : false,
         "resultsClarityID" : "91639",
         "resultsDownloadFile" : "./data/electionResults/2018/2018_general.csv",
-        "resultsSummarize" : false,
-        "races" : [
-            {
-                "name": "President of the United States",
-                "republican" : "Trump",
-                "democrat" : "Biden"
-            },
-            {
-                "name": "President of the United States",
-                "republican" : "Trump",
-                "democrat" : "Biden"
-            }
-        ]
+        "resultsSummarize" : true
+    },
+    {
+        "name": "2016_general",
+        "label": "2016 General",
+        "date": "2016-11-08",
+        "absenteeElectionNumber" : "32668",
+        "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2016/",
+        "absenteeFiles" : "./data/absentee/2016/data/*.csv",
+        "absenteeSummarize" : false,
+        "resultsDownload" : false,
+        "resultsClarityID" : "63991",
+        "resultsDownloadFile" : "./data/electionResults/2016/2016_general.csv",
+        "resultsSummarize" : true
     }
 ]
