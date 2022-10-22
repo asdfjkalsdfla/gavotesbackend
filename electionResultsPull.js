@@ -5,7 +5,6 @@ const http = require("https");
 const AdmZip = require("adm-zip");
 const xml2js = require("xml2js");
 const fetch = require("node-fetch");
-const { exit } = require("process");
 
 // Code for the XML Parser
 const xmlParser = new xml2js.Parser();
@@ -22,7 +21,8 @@ const candidateNameToParty = (candidate) => {
     : candidateCaps.includes("BIDEN") ||
       candidateCaps.includes("OSSOFF") ||
       candidateCaps.includes("WARNOCK") ||
-      candidateCaps.includes("ABRAMS")
+      candidateCaps.includes("ABRAMS") ||
+      candidateCaps.includes("CLINTON")
     ? "democratic"
     : "other";
 };
@@ -64,7 +64,7 @@ const getListOfCountyResultFiles = async (electionID, state) => {
       getXmlPrecinctResultFileForACounty(state, split[0], split[1], split[2]);
     });
   } else {
-    // if we don't get a result, we're likely on the old verison.
+    // if we don't get a result, we're likely on the old version.
     // we can get that data too!
     const electionDetailsRequest = await fetch(
       `https://results.enr.clarityelections.com/${state}/${electionID}/${version}/json/details.json`
