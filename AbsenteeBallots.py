@@ -55,7 +55,7 @@ class AbsenteeBallots:
 
         # Create a summary level and then days as an array off that
         dfCollected = dfTotalVotesToDateByDate.groupBy(level).agg(F.collect_list(F.struct(
-            'DaysFromElection', 'DateDT', 'votesToDate', 'votesOnDate')).alias("absenteeVotes"))
+            'DaysFromElection', 'DateDT', 'votesToDate', 'votesOnDate')).alias("votesByDay"))
 
         # Save the values
         self.summaries[levelName] = dfCollected
