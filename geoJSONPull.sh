@@ -6,8 +6,8 @@ GEOJSON_DATA_DIR="data/geojson/precincts/"
 
 declare -A shape0=(
     [year]='2020'
-    [dlFile]='https://dataverse.harvard.edu/api/access/datafile/4172134?gbrecs=true'
-    [extractFile]="ga_2020_general.shp"
+    [dlFile]='https://www.legis.ga.gov/api/document/docs/default-source/reapportionment-document-library/vtd2020-shape-4-20-21.zip?sfvrsn=93e56ae7_2'
+    [extractFile]="VTD2020-Shape.shp"
 )
 
 declare -A shape1=(

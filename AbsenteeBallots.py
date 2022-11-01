@@ -14,19 +14,23 @@ class AbsenteeBallots:
         self.summaries = {}
 
     def cleanseBaseData(self):
+        # change column names
+        dfCleansed = self.dfBase.withColumnRenamed("County", "county").withColumnRenamed("County Precinct", "precinct")
         # Only look at accepted ballots
-        dfAccepted = self.dfBase.filter(self.dfBase["Ballot Status"] == "A")
+        dfAccepted = dfCleansed.filter(self.dfBase["Ballot Status"] == "A")
         
         # Summarize the data from ballot level to precinct level for performance reasons
-        dfVotesByDate = dfAccepted.groupby(["County", "County Precinct", "Ballot Return Date"]).agg(
-            F.count("Voter Registration #").alias("votesOnDate"))
+        dfVotesByDate = dfAccepted.groupby(["county", "precinct", "Ballot Return Date"]).agg(F.count("Voter Registration #").alias("votesOnDate"))
         
         # Convert Ballot Return Date from string to actual date
-        dfVotesByDate = dfVotesByDate.withColumn(
-            "DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
+        dfVotesByDate = dfVotesByDate.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
+
+        # Cleansed Data
+        cleansedData = dfVotesByDate.withColumn("county", F.upper(dfVotesByDate["county"]))
+        cleansedData = cleansedData.withColumn("precinct", F.upper(cleansedData["precinct"]))
 
         # Cache the value so we don't recompute it with every summary generated
-        dfVotesByDate = dfVotesByDate.cache()
+        cleansedData = cleansedData.cache()
 
         # Set the base data property of the class
         self.dfCleansedBaseData = dfVotesByDate

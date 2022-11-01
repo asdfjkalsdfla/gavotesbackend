@@ -16,8 +16,13 @@ class ElectionResults:
 
     def cleanseBaseData(self):
         # Set the base data property of the class
-        self.dfCleansedBaseData = self.dfBase.groupBy(
-            ['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
+       cleansedData = self.dfBase.groupBy(['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
+       cleansedData = cleansedData.withColumn("county", F.upper(cleansedData["county"]))
+       cleansedData = cleansedData.withColumn("precinct", F.upper(cleansedData["precinct"]))
+       # Cache the value so we don't recompute it with every summary generated
+       cleansedData = cleansedData.cache()
+
+       self.dfCleansedBaseData = cleansedData
 
     def summarizeDataAtLevel(self, level):
         # Check if we have created the base data / if not set the properties
@@ -39,6 +44,7 @@ class ElectionResults:
 
         dfElectionSummarized = dfElectionSummarized.join(dfElectionCollected, ['race']+level)
         
+        dfElectionSummarized = dfElectionSummarized.groupBy(level).agg(F.collect_list(F.struct("race","democratic","republican","other","resultsByMode")).alias("races"))
         # Save the values
         self.summaries[levelName] = dfElectionSummarized
 
