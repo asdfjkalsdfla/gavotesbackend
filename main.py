@@ -35,7 +35,7 @@ def main():
                 election["resultsClarityID"]), str(election["resultsDownloadFile"])), shell=True)
             processResultDownload.wait()
         if (election["resultsSummarize"]):
-            results = ElectionResults(spark, election["name"], election["date"], election["resultsDownloadFile"])
+            results = ElectionResults(spark, election["name"], election["date"], election["resultsDownloadFile"],election["resultsPrecinctNameToMapFile"])
             results.summarizeData(gbLevels)
             results.exportSummaries()
 

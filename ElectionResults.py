@@ -5,12 +5,13 @@ import pyspark.sql.functions as F
 
 
 class ElectionResults:
-    def __init__(self, spark, election, electionDate, files):
+    def __init__(self, spark, election, electionDate, files, fileMapNamesToIDs):
         self.spark = spark
         self.election = election
         self.electionDate = electionDate
         self.dfBase = spark.read.option("header", True).option(
             "inferSchema", True).csv(files)
+        self.fileMapNamesToIDs = fileMapNamesToIDs
         self.dfCleansedBaseData = None
         self.summaries = {}
 
@@ -18,7 +19,11 @@ class ElectionResults:
         # Set the base data property of the class
        cleansedData = self.dfBase.groupBy(['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
        cleansedData = cleansedData.withColumn("county", F.upper(cleansedData["county"]))
+       cleansedData = cleansedData.withColumnRenamed("precinct","electionResultsPrecinctName")
+       dfMapCorrections = self.spark.read.option("header", True).option("inferSchema", False).csv(self.fileMapNamesToIDs)
+       cleansedData = cleansedData.join(dfMapCorrections, ["county", "electionResultsPrecinctName"], how='left')
        cleansedData = cleansedData.withColumn("precinct", F.upper(cleansedData["precinct"]))
+        
        # Cache the value so we don't recompute it with every summary generated
        cleansedData = cleansedData.cache()
 

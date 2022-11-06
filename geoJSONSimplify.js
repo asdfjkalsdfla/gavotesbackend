@@ -9,6 +9,8 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
   let geoJSONFile = fs.readFileSync(inputFile);
   let geoJSON = JSON.parse(geoJSONFile);
 
+  let precinctIDtoLabelMap = ['county,precinct,precinctName'];
+
   // *********************************
   // ADD NEW PROPERTIES
   // *********************************
@@ -27,6 +29,8 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
       ...precinct.properties,
       centroid: centroid.geometry.coordinates,
     };
+
+    precinctIDtoLabelMap.push(`"${precinct.properties.CTYNAME}","${precinct.properties.PRECINCT_I}","${precinct.properties.PRECINCT_N}"`);
   });
 
   // *********************************
@@ -34,6 +38,7 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
   // *********************************
   if (isPrecinctLevel) {
     // County level file geo json file
+    const dir = path.dirname(outFile);
     const geoJSONBase = { ...geoJSON };
     delete geoJSONBase.features;
     const geoJSONCountyMap = new Map();
@@ -52,12 +57,14 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
         simplify(precinct, { tolerance: 0.00005, highQuality: true })
       );
       value.features = newFeatures;
-      const dir = path.dirname(outFile);
       fs.writeFileSync(
         `${dir}/GA_precincts_2020_${key}_simple.json`,
         JSON.stringify(value)
       );
-    });
+    }
+    );
+    fs.writeFileSync(`${dir}/GA_precincts_id_to_name.csv`,precinctIDtoLabelMap.join('\n'));
+
   }
 
   // *********************************
@@ -75,6 +82,8 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
   geoJSON.features = newFeatures;
 
   fs.writeFileSync(outFile, JSON.stringify(geoJSON));
+
+  
 };
 
 // Parse the command line options and call the results
