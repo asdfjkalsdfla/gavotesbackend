@@ -25,17 +25,22 @@ for county in electionResultsCounties :
     mapPrecinctsLabels = mapPrecincts['matchLabel'].tolist()
     precinctsInCounty = electionResultsCountiesAndPrecincts[electionResultsCountiesAndPrecincts['county']==county]['precinct'].tolist()
     for precinct in precinctsInCounty :
-        if county == "CHATHAM" and year == "2020":
-            precinctID = precinct.split(" ")[0]
-            label = mapPrecincts[mapPrecincts['precinct']==precinctID ]['precinctName'].tolist()[0]
-            mapLabelMatched=(label,100)
+        if county == "CHATHAM" :
+            if (year == "2018" or year == "2016"):
+                precinctID = precinct.split(" ")[0]+"C"
+            else:
+                precinctID = precinct.split(" ")[0]
+            labelList = mapPrecincts[mapPrecincts['precinct']==precinctID ]['precinctName'].tolist()
+            label=labelList[0]
+            mapLabelMatched=(label,50)
         else :
             mapLabelMatched = process.extractOne(precinct, mapPrecinctsLabels)
             precinctID = mapPrecincts[mapPrecincts['matchLabel']==mapLabelMatched[0] ]['precinct'].tolist()[0]
         
         line  = "{county},{precinctID},{mapLabelMatched},{precinct},{score:.2f}".format(county=county,precinctID=precinctID,precinct=precinct,mapLabelMatched=mapLabelMatched[0],score=mapLabelMatched[1])
-        f.write(line+"\n")
-        if mapLabelMatched[1] < 95 :
+        if mapLabelMatched[1] > 50 or len(precinctsInCounty)==0 :
+            f.write(line+"\n")
+        if mapLabelMatched[1] < 50 :
             print(line)
 
 f.close()
