@@ -17,9 +17,11 @@ class ElectionResults:
 
     def cleanseBaseData(self):
         # Set the base data property of the class
-       cleansedData = self.dfBase.groupBy(['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
+       cleansedData = self.dfBase.filter(~(self.dfBase["candidate"] == "Under/Over Votes"))
+       cleansedData = cleansedData.groupBy(['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
        cleansedData = cleansedData.withColumn("county", F.upper(cleansedData["county"]))
        cleansedData = cleansedData.withColumnRenamed("precinct","electionResultsPrecinctName")
+       
        dfMapCorrections = self.spark.read.option("header", True).option("inferSchema", False).csv(self.fileMapNamesToIDs)
        cleansedData = cleansedData.join(dfMapCorrections, ["county", "electionResultsPrecinctName"], how='left')
        cleansedData = cleansedData.withColumn("precinct", F.upper(cleansedData["precinct"]))
