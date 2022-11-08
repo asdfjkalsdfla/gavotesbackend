@@ -9,9 +9,10 @@
         "absenteeFiles" : "./data/absentee/2022/data/*.csv",
         "absenteeSummarize" : false,
         "resultsDownload" : false,
-        "resultsDownloadFile" : "./data/electionResults/2022/2022_general_election.csv",
-        "resultsClarityID" : "TBD",
-        "resultsSummarize" : false
+        "resultsDownloadFile" : "./data/electionResults/2022/2022_general.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
+        "resultsClarityID" : "114891",
+        "resultsSummarize" : true
     },
     {
         "name": "2021_senate_runoff",
@@ -24,8 +25,9 @@
         "absenteeSummarize" : false,
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2021/2021_senate_runoff.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_ids.csv",
         "resultsClarityID" : "107556",
-        "resultsSummarize" : true
+        "resultsSummarize" : false
     },
     {
         "name": "2020_general",
@@ -39,7 +41,8 @@
         "resultsDownload" : false,
         "resultsClarityID" : "105369",
         "resultsDownloadFile" : "./data/electionResults/2020/2020_general.csv",
-        "resultsSummarize" : true
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_ids.csv",
+        "resultsSummarize" : false
     },
     {
         "name": "2018_general",
@@ -53,7 +56,8 @@
         "resultsDownload" : false,
         "resultsClarityID" : "91639",
         "resultsDownloadFile" : "./data/electionResults/2018/2018_general.csv",
-        "resultsSummarize" : true
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2018/2018_general_map_ids.csv",
+        "resultsSummarize" : false
     },
     {
         "name": "2016_general",
@@ -67,6 +71,7 @@
         "resultsDownload" : false,
         "resultsClarityID" : "63991",
         "resultsDownloadFile" : "./data/electionResults/2016/2016_general.csv",
-        "resultsSummarize" : true
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2016/2016_general_map_ids.csv",
+        "resultsSummarize" : false
     }
 ]
