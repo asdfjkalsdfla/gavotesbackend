@@ -188,7 +188,7 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
       .filter((result) => result.votes > 0)
       .forEach((result) => {
         resultFileWriter.write(
-          `${result.contestName},${result.county},${result.countyPrecinct},${result.candidate},${result.party},${result.mode},${result.votes}\n`
+          `"${result.contestName}","${result.county}","${result.countyPrecinct}","${result.candidate}","${result.party}","${result.mode}","${result.votes}"\n`
         );
       });
     // const value = resultSet;
@@ -272,7 +272,7 @@ const getServiceResultsForCounty = async (state, county, election, version) => {
     .filter((result) => result.votes > 0)
     .forEach((result) => {
       resultFileWriter.write(
-        `${result.contestName},${result.county},${result.countyPrecinct},${result.candidate},${result.party},${result.mode},${result.votes}\n`
+        `"${result.contestName}","${result.county}","${result.countyPrecinct}","${result.candidate}","${result.party}","${result.mode}","${result.votes}"\n`
       );
     });
 };
