@@ -25,7 +25,7 @@ for county in electionResultsCounties :
     mapPrecinctsLabels = mapPrecincts['matchLabel'].tolist()
     precinctsInCounty = electionResultsCountiesAndPrecincts[electionResultsCountiesAndPrecincts['county']==county]['precinct'].tolist()
     for precinct in precinctsInCounty :
-        if county == "CHATHAM" :
+        if county == "CHATHAM" or county == "WARE" or county == "FORSYTH" :
             if (year == "2018" or year == "2016"):
                 precinctID = precinct.split(" ")[0]+"C"
             else:
@@ -33,7 +33,19 @@ for county in electionResultsCounties :
             labelList = mapPrecincts[mapPrecincts['precinct']==precinctID ]['precinctName'].tolist()
             if len(labelList) > 0 :
                 label=labelList[0]
+                apLabelMatched=(label,100)
+            else :
+                label="??"
+                mapLabelMatched=(label,0)
+        elif county == "RICHMOND" and year == "2022":
+            precinctID = precinct
+            labelList = mapPrecincts[mapPrecincts['precinct']==precinctID ]['precinctName'].tolist()
+            if len(labelList) > 0 :
+                label=labelList[0]
                 mapLabelMatched=(label,100)
+            else :
+                label="??"
+                mapLabelMatched=(label,0)
         else :
             mapLabelMatched = process.extractOne(precinct, mapPrecinctsLabels)
             precinctID = mapPrecincts[mapPrecincts['matchLabel']==mapLabelMatched[0] ]['precinct'].tolist()[0]
