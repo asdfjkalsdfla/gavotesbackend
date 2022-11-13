@@ -7,6 +7,18 @@ const xml2js = require("xml2js");
 const { exit } = require("process");
 // const fetch = require("node-fetch");
 
+const fetchOptions = {
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-encoding": "gzip, deflate, br",
+  },
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "body": null,
+  "method": "GET",
+  "mode": "cors",
+  "credentials": "omit"
+};
+
 // Code for the XML Parser
 const xmlParser = new xml2js.Parser();
 
@@ -17,7 +29,8 @@ const candidateNameToParty = (candidate) => {
   return candidateCaps.includes("LOEFFLER") ||
     candidateCaps.includes("TRUMP") ||
     candidateCaps.includes("PERDUE") ||
-    candidateCaps.includes("KEMP")
+    candidateCaps.includes("KEMP") ||
+    candidateCaps.includes("WALKER")
     ? "republican"
     : candidateCaps.includes("BIDEN") ||
       candidateCaps.includes("OSSOFF") ||
@@ -58,7 +71,11 @@ const getListOfCountyResultFiles = async (electionID, state) => {
     const esData = await esRequest.json();
 
     // now download all those files
+    // const counties = esData.settings.electiondetails.participatingcounties.slice(59,60);
     const counties = esData.settings.electiondetails.participatingcounties;
+    // console.log(counties);
+    // exit();
+
     counties.forEach(async (county) => {
       const split = county.split("|");
       await getXmlPrecinctResultFileForACounty(state, split[0], split[1], split[2]);
@@ -70,6 +87,7 @@ const getListOfCountyResultFiles = async (electionID, state) => {
       `https://results.enr.clarityelections.com/${state}/${electionID}/${version}/json/details.json`, fetchOptions
     );
     const electionDetails = await electionDetailsRequest.json();
+
     electionDetails.Contests[0].Eid.forEach(async (countyElectionID, index) => {
       const county = electionDetails.Contests[0].P[index].replace(" ", "_");
       const url = `https://results.enr.clarityelections.com/${state}/${county}/${countyElectionID}/current_ver.txt`; 
@@ -86,15 +104,15 @@ const getListOfCountyResultFiles = async (electionID, state) => {
 const getXmlPrecinctResultFileForACounty = async (
   state,
   county,
-  election,
+  countyElectionID,
   version
 ) => {
-  const fileURL = `https://results.enr.clarityelections.com/${state}/${county}/${election}/${version}/reports/detailxml.zip`;
+  const fileURL = `https://results.enr.clarityelections.com/${state}/${county}/${countyElectionID}/${version}/reports/detailxml.zip`;
   try {
     const dataFileRequest = await fetch(fileURL, fetchOptions);
     if (!dataFileRequest.ok) {
         // if we get an error here, it's likely because the default results aren't published; go to the JSON method
-        getServiceResultsForCounty(state, county, election, version);
+      getServiceResultsForCounty(state, county, countyElectionID, version);
         return;
       }
 
@@ -118,6 +136,7 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
   const file = await parseXml(fileXML);
   const county = file.ElectionResult.Region[0];
 
+  // console.log(file.ElectionResult.Contest);
   // Go through each contest
   file.ElectionResult.Contest.filter(
     (contest) =>
@@ -125,6 +144,7 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
       contest["$"].text.includes("President of the United States") ||
       contest["$"].text.includes("Governor")
   ).forEach((contest) => {
+    
     const resultSet = [];
     if (!contest.Choice) {
       console.log(`ERROR: Did not find candidates in ${county}`);
@@ -135,6 +155,7 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
     const contestName = contest["$"].text
       .split("/")[0]
       .replace("Special Election", "Special");
+    // console.log(contestName);
 
     // pull the results
     contest.Choice.forEach((candidateObject) => {
@@ -196,9 +217,9 @@ const parsePrecinctResultFileForACounty = async (fileXML) => {
   });
 };
 
-const getServiceResultsForCounty = async (state, county, election, version) => {
+const getServiceResultsForCounty = async (state, county, countyElectionID, version) => {
   const responseSummary = await fetch(
-    `https://results.enr.clarityelections.com/${state}/${county}/${election}/${version}/json/en/summary.json`, fetchOptions
+    `https://results.enr.clarityelections.com/${state}/${county}/${countyElectionID}/${version}/json/en/summary.json`, fetchOptions
   );
   if (!responseSummary.ok) {
     throw Error(responseSummary.statusText);
@@ -228,8 +249,8 @@ const getServiceResultsForCounty = async (state, county, election, version) => {
   ];
   // const modes = ["Election Day Votes"];
   const modePromises = modes.map(async (mode) => {
-    if (mode === "Advanced Voting Votes" && election === 114929) mode = "Advance Voting Votes"
-    const url = `https://results.enr.clarityelections.com/${state}/${county}/${election}/${version}/json/${mode.replace(/\s/g, "_")}.json`;
+    if (mode === "Advanced Voting Votes" && countyElectionID === 114929) mode = "Advance Voting Votes"
+    const url = `https://results.enr.clarityelections.com/${state}/${county}/${countyElectionID}/${version}/json/${mode.replace(/\s/g, "_")}.json`;
     const responseByMode = await fetch(url, fetchOptions);
     if (!responseByMode.ok) {
       console.log(`Failed to load ${url}`);

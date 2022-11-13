@@ -11,7 +11,7 @@
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2022/2022_general.csv",
         "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
-        "resultsClarityID" : "114891",
+        "resultsClarityID" : "115465",
         "resultsSummarize" : true
     },
     {
