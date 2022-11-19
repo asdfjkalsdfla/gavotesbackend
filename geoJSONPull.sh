@@ -2,6 +2,8 @@
 set -e
 set -x
 
+# https://www.legis.ga.gov/joint-office/reapportionment
+
 GEOJSON_DATA_DIR="data/geojson/precincts/"
 
 declare -A shape0=(
