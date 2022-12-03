@@ -1,5 +1,20 @@
 [
     {
+        "name": "2022_runoff",
+        "label": "2022 Senate Runoff",
+        "date": "2022-12-06",
+        "absenteeElectionNumber" : "36372",
+        "absenteeDownload" : true,
+        "absenteeFileDir" : "./data/absentee/2022_runoff/",
+        "absenteeFiles" : "./data/absentee/2022_runoff/data/*.csv",
+        "absenteeSummarize" : true,
+        "resultsDownload" : false,
+        "resultsDownloadFile" : "./data/electionResults/2022_runoff/2022_runoff.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
+        "resultsClarityID" : "TBD",
+        "resultsSummarize" : false
+    },
+    {
         "name": "2022_general",
         "label": "2022 General Election",
         "date": "2022-11-08",
@@ -12,7 +27,7 @@
         "resultsDownloadFile" : "./data/electionResults/2022/2022_general.csv",
         "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
         "resultsClarityID" : "115465",
-        "resultsSummarize" : true
+        "resultsSummarize" : false
     },
     {
         "name": "2021_senate_runoff",
