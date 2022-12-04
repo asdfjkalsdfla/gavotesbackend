@@ -4,14 +4,16 @@ import pyspark.sql.functions as F
 from pyspark.sql import Window
 
 class AbsenteeBallots:
-    def __init__(self, spark, election, electionDate, files):
+    def __init__(self, spark, election, electionDate, files, idOverridesFile=False):
         self.spark = spark
         self.election = election
         self.electionDate = electionDate
         self.dfBase = spark.read.option("header", True).option(
             "inferSchema", False).csv(files)
+        self.idOverridesFile=idOverridesFile
         self.dfCleansedBaseData = None
         self.summaries = {}
+        
 
     def cleanseBaseData(self):
         # change column names
@@ -24,6 +26,12 @@ class AbsenteeBallots:
         
         # Convert Ballot Return Date from string to actual date
         dfVotesByDate = dfVotesByDate.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
+
+        if self.idOverridesFile :
+            dfIDCorrections = self.spark.read.option("header", True).option("inferSchema", False).csv(self.idOverridesFile)
+            dfVotesByDate = dfVotesByDate.withColumnRenamed("precinct","absenteePrecinct")
+            dfVotesByDate = dfVotesByDate.join(dfIDCorrections, ["county", "absenteePrecinct"], how='left')
+            dfVotesByDate = dfVotesByDate.withColumn("precinct", F.upper(dfVotesByDate["precinct"]))
 
         # Cleansed Data
         cleansedData = dfVotesByDate.withColumn("county", F.upper(dfVotesByDate["county"]))
