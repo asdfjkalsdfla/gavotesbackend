@@ -47,4 +47,6 @@ for shape in ${!shape@}; do
     unzip -o $DLFile -d $GEOJSON_DATA_DIR/$GEOJSON_YEAR
     yarn shp2json $GEOJSON_DATA_DIR/$GEOJSON_YEAR/${shape[extractFile]} -o $geoJSONFileName
     ./geoJSONSimplify.js  -i $geoJSONFileName -o $geoJSONSimpleFileName -p
-done 
+done
+
+./geoJSONBoundingBox.js -i ~/dev/play/gavote/website/frontend/public/static/GA_counties_simple.json -o ~/dev/play/gavote/website/frontend/src/VotesMapCountesBB.json
