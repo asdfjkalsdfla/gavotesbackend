@@ -11,9 +11,9 @@
         "absenteeSummarize" : false,
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2022_runoff/2022_runoff.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
-        "resultsClarityID" : "TBD",
-        "resultsSummarize" : false
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022_runoff/2022_runoff_map_ids.csv",
+        "resultsClarityID" : "116564",
+        "resultsSummarize" : true
     },
     {
         "name": "2022_general",

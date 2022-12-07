@@ -26,8 +26,11 @@ def main():
                 election["absenteeElectionNumber"]), str(election["absenteeFileDir"])), shell=True)
             process.wait()
         if (election["absenteeSummarize"]):
+            idOverrides=False
+            if "absenteeFilesIDMap" in election:
+                idOverrides=election["absenteeFilesIDMap"]
             abs = AbsenteeBallots(
-                spark, election["name"], election["date"], election["absenteeFiles"])
+                spark, election["name"], election["date"], election["absenteeFiles"], idOverridesFile=idOverrides)
             abs.summarizeData(gbLevels)
             abs.exportSummaries()
         if (election["resultsDownload"]):
