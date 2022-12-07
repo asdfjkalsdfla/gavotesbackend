@@ -4,12 +4,12 @@ from thefuzz import process
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("year")
+parser.add_argument("race")
 parser.add_argument("--county", help="specifies the county")
 args = parser.parse_args()
-year = args.year
+race = args.race
 
-electionResults = pd.read_csv('data/electionResults/'+year+'/'+year+'_general.csv')
+electionResults = pd.read_csv('data/electionResults/'+race+'/'+race+'.csv')
 electionResultsCountiesAndPrecincts = electionResults[['county','precinct']].drop_duplicates()
 electionResultsCountiesAndPrecincts['county'] = electionResults['county'].str.upper()
 if args.county:
@@ -20,9 +20,9 @@ electionResultsCounties = electionResultsCountiesAndPrecincts['county'].unique()
 mapCountyPrecinctList = pd.read_csv('data/geojson/precincts/2020_simple/GA_precincts_id_to_name.csv')
 mapCountyPrecinctList['matchLabel'] = mapCountyPrecinctList['precinctName']
 
-manualMapLabelToOverrides = pd.read_csv('data/electionResults/'+year+'/'+year+'_general_map_ids_manual.csv', dtype={'precinct':'string'})
+manualMapLabelToOverrides = pd.read_csv('data/electionResults/'+race+'/'+race+'_map_ids_manual.csv', dtype={'precinct':'string'})
 
-f = open('data/electionResults/'+year+'/'+year+'_general_map_ids.csv', "w")
+f = open('data/electionResults/'+race+'/'+race+'_map_ids.csv', "w")
 f.write('county,precinct,mapPrecinctName,electionResultsPrecinctName,score\n')
 
 for county in electionResultsCounties :
@@ -42,7 +42,7 @@ for county in electionResultsCounties :
             label = overrides.iat[0, 2]
             mapLabelMatched=(label,100)
         elif county == "CHATHAM" or county == "WARE" or county == "FORSYTH" :
-            if (year == "2018" or year == "2016"):
+            if (race == "2018" or race == "2016"):
                 precinctID = precinct.split(" ")[0]+"C"
             else:
                 precinctID = precinct.split(" ")[0]
@@ -53,7 +53,7 @@ for county in electionResultsCounties :
             else :
                 label="??"
                 mapLabelMatched=(label,0)
-        elif county == "RICHMOND" and year == "2022":
+        elif county == "RICHMOND" and race == "2022":
             precinctID = precinct
             labelList = mapPrecincts[mapPrecincts['precinct']==precinctID ]['precinctName'].tolist()
             if len(labelList) > 0 :
