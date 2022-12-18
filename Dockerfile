@@ -2,7 +2,6 @@ FROM apache/spark-py
 
 # UPDATE PACKAGE
 USER root
-SHELL ["/bin/bash", "--login", "-c"]
 RUN apt-get update
 
 # INSTALL CURL
@@ -12,14 +11,10 @@ RUN apt-get install -y curl
 RUN apt-get install -y zip
 
 # INSTALL NODE
-ENV NODE_VERSION=18
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-ENV NVM_DIR=/root/.nvm
-# RUN [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-RUN nvm install ${NODE_VERSION}
-RUN nvm use v${NODE_VERSION}
-RUN nvm install-latest-npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - 
+RUN apt-get install -y nodejs
 
+ENV SPARK_LOCAL_HOSTNAME=localhost
 
 # INSTALL GA VOTES BACKEND DEPS
 # only copy deps so this can act as a layer/faster rebuild
@@ -42,4 +37,5 @@ RUN mkdir -p /opt/gavotesBackend/data/geojson/precincts/2020_simple/
 COPY dataHacky/GA_precincts_id_to_name.csv /opt/gavotesBackend/data/geojson/precincts/2020_simple/GA_precincts_id_to_name.csv
 COPY dataHacky/2022_runoff_map_ids_manual.csv /opt/gavotesBackend/data/electionResults/2022_runoff/2022_runoff_map_ids_manual.csv
 # SET DEFAULT ENTRY POINT
-CMD ["./runLoop.sh"]
+CMD ["/bin/sh", "-c" , "echo 127.0.0.1 $HOSTNAME >> /etc/hosts && ./runLoop.sh"]
+# CMD ["./runLoop.sh"]
