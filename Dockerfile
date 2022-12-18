@@ -16,6 +16,11 @@ RUN apt-get install -y nodejs
 
 ENV SPARK_LOCAL_HOSTNAME=localhost
 
+# INSTALL AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+
 # INSTALL GA VOTES BACKEND DEPS
 # only copy deps so this can act as a layer/faster rebuild
 RUN mkdir /opt/gavotesBackend

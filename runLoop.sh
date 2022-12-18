@@ -6,3 +6,4 @@ echo 'US Senate,Bacon,Douglas,"other","other","Absentee by Mail Votes","1"' >> d
 ./electionResultPrecinctNamelToID.py 2022_runoff > precinct_changes_2022.csv
 ./main.py
 ./copyToFrontEnd.sh
+./deploy.sh
