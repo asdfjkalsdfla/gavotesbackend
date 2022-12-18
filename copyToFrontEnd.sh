@@ -35,3 +35,5 @@ cp ./data/electionResults/2022/2022_general_map_ids.csv ./data/frontend/.
 cp ./data/geojson/precincts/2020_simple/demographics-state-2020.json ./data/frontend/demographics/.
 cp ./data/geojson/precincts/2020_simple/demographics-county-2020.json ./data/frontend/demographics/.
 cp ./data/geojson/precincts/2020_simple/demographics-precinct-2020.json ./data/frontend/demographics/.
+
+exit 0
