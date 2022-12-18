@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const { ArgumentParser } = require("argparse");
 const fs = require("fs");
+const path = require("path");
 const http = require("https");
 const AdmZip = require("adm-zip");
 const xml2js = require("xml2js");
@@ -14,7 +15,7 @@ const fetchOptions = {
     Accept: "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.5",
     "Accept-Encoding": "gzip, deflate,",
-    Referer: 'https://results.enr.clarityelections.com/GA/116564/web.307039/'
+    Referer: "https://results.enr.clarityelections.com/GA/116564/web.307039/",
   },
   method: "GET",
 };
@@ -361,6 +362,7 @@ const { electionNumber, state, races, outFile } = cliParser.parse_args();
 const fileName = outFile
   ? outFile
   : `electionResults_${state}_${electionNumber}.csv`;
+fs.mkdirSync(path.dirname(fileName), { recursive: true });
 const resultFileWriter = fs.createWriteStream(fileName);
 
 resultFileWriter.write("race,county,precinct,candidate,party,mode,votes\n");
