@@ -42,5 +42,5 @@ RUN mkdir -p /opt/gavotesBackend/data/geojson/precincts/2020_simple/
 COPY dataHacky/GA_precincts_id_to_name.csv /opt/gavotesBackend/data/geojson/precincts/2020_simple/GA_precincts_id_to_name.csv
 COPY dataHacky/2022_runoff_map_ids_manual.csv /opt/gavotesBackend/data/electionResults/2022_runoff/2022_runoff_map_ids_manual.csv
 # SET DEFAULT ENTRY POINT
-CMD ["/bin/sh", "-c" , "echo 127.0.0.1 $HOSTNAME >> /etc/hosts && ./runLoop.sh"]
-# CMD ["./runLoop.sh"]
+# CMD ["/bin/sh", "-c" , "echo 127.0.0.1 $HOSTNAME >> /etc/hosts && ./runLoop.sh"]
+CMD ["./runLoop.sh"]
