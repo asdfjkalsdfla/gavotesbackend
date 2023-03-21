@@ -17,9 +17,13 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
   // ADD NEW PROPERTIES
   // *********************************
   geoJSON.features.forEach((precinct) => {
+    // updates the county name to uppercase
+    if(precinct.properties && precinct.properties.CTYNAME)
+      precinct.properties.CTYNAME = precinct.properties.CTYNAME.toUpperCase();
+
     // If we have a precinct id  use a different ID form
     const id = precinct.properties.PRECINCT_I
-      ? `${precinct.properties.CTYNAME}##${precinct.properties.PRECINCT_I}`
+      ? `${precinct.properties.CTYNAME.toUpperCase()}##${precinct.properties.PRECINCT_I.toUpperCase()}`
       : precinct.properties.CTYNAME;
 
     // calculate the centroid for each point
@@ -149,7 +153,7 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
       );
       value.features = newFeatures;
       fs.writeFileSync(
-        `${dir}/GA_precincts_2020_${key}_simple.json`,
+        `${dir}/GA_precincts_2022_${key}_simple.json`,
         JSON.stringify(value)
       );
     });

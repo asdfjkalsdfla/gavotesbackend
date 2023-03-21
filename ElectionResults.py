@@ -16,8 +16,13 @@ class ElectionResults:
         self.summaries = {}
 
     def cleanseBaseData(self):
+       # Make sure we always have all parties
+       data = [("fake", "fakeCounty","fakePrecinct","fakeCandidate",  "other", "fakeMode",0)]
+       columns= ["race", "county","precinct","candidate","party", "mode",  "votes" ]
+       df = self.spark.createDataFrame(data = data, schema = columns)
         # Set the base data property of the class
-       cleansedData = self.dfBase.filter(~(self.dfBase["candidate"] == "Under/Over Votes"))
+       cleansedData = self.dfBase.unionByName(df, allowMissingColumns = True)
+       cleansedData = cleansedData.filter(~(self.dfBase["candidate"] == "Under/Over Votes"))
        cleansedData = cleansedData.groupBy(['race', 'county', 'precinct','mode']).pivot("party").sum("votes")
        cleansedData = cleansedData.withColumn("county", F.upper(cleansedData["county"]))
        cleansedData = cleansedData.withColumnRenamed("precinct","electionResultsPrecinctName")

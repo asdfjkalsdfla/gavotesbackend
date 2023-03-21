@@ -7,6 +7,12 @@ set -x
 GEOJSON_DATA_DIR="data/geojson/precincts/"
 
 declare -A shape0=(
+    [year]='2022'
+    [dlFile]='https://www.legis.ga.gov/api/document/docs/default-source/reapportionment-document-library/ga-precincts2022-shape.zip?sfvrsn=7844a3b6_2'
+    [extractFile]="GA-PRECINCTS2022-SHAPE.shp"
+)
+
+declare -A shape0=(
     [year]='2020'
     [dlFile]='https://www.legis.ga.gov/api/document/docs/default-source/reapportionment-document-library/vtd2020-shape-4-20-21.zip?sfvrsn=93e56ae7_2'
     [extractFile]="VTD2020-Shape.shp"

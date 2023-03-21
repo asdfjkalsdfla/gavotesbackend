@@ -4,16 +4,16 @@
         "label": "2022 Senate Runoff",
         "date": "2022-12-06",
         "absenteeElectionNumber" : "36372",
-        "absenteeDownload" : true,
+        "absenteeDownload" : false,
         "absenteeFileDir" : "./data/absentee/2022_runoff/",
         "absenteeFiles" : "./data/absentee/2022_runoff/data/*.csv",
         "absenteeFilesIDMap" : "./data/absenteeSummary/2022_runoff/2022_general_map_ids.csv",
-        "absenteeSummarize" : true,
+        "absenteeSummarize" : false,
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2022_runoff/2022_runoff.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022_runoff/2022_runoff_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022_runoff/2022_runoff_map_2022_ids.csv",
         "resultsClarityID" : "116564",
-        "resultsSummarize" : true
+        "resultsSummarize" : false
     },
     {
         "name": "2022_general",
@@ -27,9 +27,9 @@
         "absenteeSummarize" : false,
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2022/2022_general.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_2022_ids.csv",
         "resultsClarityID" : "115465",
-        "resultsSummarize" : false
+        "resultsSummarize" : true
     },
     {
         "name": "2021_senate_runoff",
@@ -42,7 +42,7 @@
         "absenteeSummarize" : false,
         "resultsDownload" : false,
         "resultsDownloadFile" : "./data/electionResults/2021/2021_senate_runoff.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_2022_ids.csv",
         "resultsClarityID" : "107556",
         "resultsSummarize" : false
     },
@@ -58,7 +58,7 @@
         "resultsDownload" : false,
         "resultsClarityID" : "105369",
         "resultsDownloadFile" : "./data/electionResults/2020/2020_general.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2020/2020_general_map_2022_ids.csv",
         "resultsSummarize" : false
     },
     {
@@ -73,7 +73,7 @@
         "resultsDownload" : false,
         "resultsClarityID" : "91639",
         "resultsDownloadFile" : "./data/electionResults/2018/2018_general.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2018/2018_general_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2018/2018_general_map_2022_ids.csv",
         "resultsSummarize" : false
     },
     {
@@ -88,7 +88,7 @@
         "resultsDownload" : false,
         "resultsClarityID" : "63991",
         "resultsDownloadFile" : "./data/electionResults/2016/2016_general.csv",
-        "resultsPrecinctNameToMapFile" : "./data/electionResults/2016/2016_general_map_ids.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2016/2016_general_map_2022_ids.csv",
         "resultsSummarize" : false
     }
 ]

@@ -26,12 +26,12 @@ do
     done
 done
 
-cp ./data/electionResults/2022_runoff/2022_runoff_map_ids_manual.csv ./data/frontend/2022_general_map_ids_manual.csv
-cp ./data/electionResults/2022_runoff/2022_runoff_map_ids.csv ./data/frontend/2022_general_map_ids.csv
+# cp ./data/electionResults/2022_runoff/2022_runoff_map_ids_manual.csv ./data/frontend/2022_general_map_ids_manual.csv
+# cp ./data/electionResults/2022_runoff/2022_runoff_map_ids.csv ./data/frontend/2022_general_map_ids.csv
 
-cp ./data/geojson/precincts/2020_simple/GA_precincts_* ./data/frontend/shapeFiles/.
-cp ./data/electionResults/2022/2022_general_map_ids_manual.csv ./data/frontend/.
-cp ./data/electionResults/2022/2022_general_map_ids.csv ./data/frontend/.
+cp ./data/geojson/precincts/2022_simple/GA_precincts_* ./data/frontend/shapeFiles/.
+cp ./data/electionResults/2022_runoff/2022_runoff_map_2022_ids_manual.csv ./data/frontend/.
+cp ./data/electionResults/2022_runoff/2022_runoff_map_2022_ids.csv ./data/frontend/.
 cp ./data/geojson/precincts/2020_simple/demographics-state-2020.json ./data/frontend/demographics/.
 cp ./data/geojson/precincts/2020_simple/demographics-county-2020.json ./data/frontend/demographics/.
 cp ./data/geojson/precincts/2020_simple/demographics-precinct-2020.json ./data/frontend/demographics/.
