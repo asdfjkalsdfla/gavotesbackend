@@ -1,5 +1,5 @@
-import findspark
-findspark.init()
+# import findspark
+# findspark.init()
 import pyspark.sql.functions as F
 from pyspark.sql import Window
 

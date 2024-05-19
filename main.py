@@ -2,8 +2,8 @@
 from ElectionResults import ElectionResults
 from subprocess import Popen
 from AbsenteeBallots import AbsenteeBallots
-import findspark
-findspark.init()
+# import findspark
+# findspark.init()
 from pyspark.sql import SparkSession
 import json
 
