@@ -1,5 +1,21 @@
 [
     {
+        "name": "2024_primary",
+        "label": "2024 Primary",
+        "date": "2024-05-21",
+        "absenteeElectionNumber" : "a0p3d00000LWdRXAA1",
+        "absenteeDownload" : false,
+        "absenteeFileDir" : "./data/absentee/2024_primary/",
+        "absenteeFiles" : "./data/absentee/2024_primary/data/*.csv",
+        "absenteeFilesIDMap" : "./data/absenteeSummary/2024_primary/2022_general_map_ids.csv",
+        "absenteeSummarize" : true,
+        "resultsDownload" : false,
+        "resultsDownloadFile" : "TBD",
+        "resultsPrecinctNameToMapFile" : "TBD",
+        "resultsClarityID" : "TBD",
+        "resultsSummarize" : false
+    },
+    {
         "name": "2022_runoff",
         "label": "2022 Senate Runoff",
         "date": "2022-12-06",
@@ -29,7 +45,7 @@
         "resultsDownloadFile" : "./data/electionResults/2022/2022_general.csv",
         "resultsPrecinctNameToMapFile" : "./data/electionResults/2022/2022_general_map_2022_ids.csv",
         "resultsClarityID" : "115465",
-        "resultsSummarize" : true
+        "resultsSummarize" : false
     },
     {
         "name": "2021_senate_runoff",
