@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@turf/simplify": "^6.5.0",
-    "@turf/turf": "^6.5.0",
+    "@turf/turf": "^7.0.0",
     "adm-zip": "^0.5.9",
     "argparse": "^2.0.1",
     "csv": "^6.2.5",
