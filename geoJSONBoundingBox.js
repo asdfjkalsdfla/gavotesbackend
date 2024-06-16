@@ -2,7 +2,7 @@
 const { ArgumentParser } = require("argparse");
 const fs = require("fs");
 const path = require("path");
-const turf = require("@turf/turf");
+const { bbox } = require("@turf/turf");
 
 const main = async (inputFile, outFile, isPrecinctLevel) => {
   let geoJSONFile = fs.readFileSync(inputFile);
@@ -11,12 +11,12 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
 
   geoJSON.features.forEach((county) => {
     // calculate the centroid for each point
-    const boundaries = turf.bbox(county);
+    const boundaries = bbox(county);
     const countyID =  county.properties.CTYNAME;
     boundingBoxes[countyID]=boundaries;
   });
 
-  boundingBoxes.STATE = turf.bbox(geoJSON);
+  boundingBoxes.STATE = bbox(geoJSON);
   fs.writeFileSync(outFile, JSON.stringify(boundingBoxes));
 };
 

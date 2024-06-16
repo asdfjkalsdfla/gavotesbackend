@@ -2,7 +2,7 @@
 const { ArgumentParser } = require("argparse");
 const fs = require("fs");
 const path = require("path");
-const turf = require("@turf/turf");
+const { centerOfMass } = require("@turf/turf");
 const simplify = require("@turf/simplify");
 
 const main = async (inputFile, outFile, isPrecinctLevel) => {
@@ -27,7 +27,7 @@ const main = async (inputFile, outFile, isPrecinctLevel) => {
       : precinct.properties.CTYNAME;
 
     // calculate the centroid for each point
-    const centroid = turf.centerOfMass(precinct);
+    const centroid = centerOfMass(precinct);
 
     const propertiesPrior = precinct.properties;
 

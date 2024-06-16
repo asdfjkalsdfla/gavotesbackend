@@ -55,4 +55,4 @@ for shape in ${!shape@}; do
     ./geoJSONSimplify.js  -i $geoJSONFileName -o $geoJSONSimpleFileName -p
 done
 
-./geoJSONBoundingBox.js -i ~/dev/play/gavote/website/frontend/public/static/GA_counties_simple.json -o ~/dev/play/gavote/website/frontend/src/VotesMapCountesBB.json
+./geoJSONBoundingBox.js -i ~/dev/play/gavote/frontend/public/static/shapeFiles/GA_counties_simple.json -o ~/dev/play/gavote/frontend/src/VotesMapCountesBB.json
