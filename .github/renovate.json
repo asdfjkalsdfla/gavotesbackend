@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "groupName": "minors and patches",
+      "matchUpdateTypes": ["minor", "patch", "lockFileMaintenance"],
+      "automerge": true,
+      "schedule": "before 5am on sunday"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": "before 6am on sunday"
+  },
+  "timezone": "America/New_York",
+  "schedule": "every weekend"
+}
