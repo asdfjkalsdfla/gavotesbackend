@@ -9,5 +9,6 @@ dependencies = [
     "duckdb>=1.0.0",
     "pandas>=2.2.2",
     "pyspark>=3.5.2",
+    "python-levenshtein>=0.25.1",
     "thefuzz>=0.22.1",
 ]
