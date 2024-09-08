@@ -1,5 +1,0 @@
-findspark==2.0.1
-pandas
-numpy
-thefuzz
-python-Levenshtein
