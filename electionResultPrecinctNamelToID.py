@@ -74,8 +74,8 @@ for county in electionResultsCounties:
 
     for precinct in precinctsInCounty:
         overrides = manualMapLabelToOverrides[((manualMapLabelToOverrides['county'] == county) & (
-            manualMapLabelToOverrides['electionResultsPrecinctName'] == precinct))] if manualMapLabelToOverrides else False
-        if ((overrides) and (overrides.size > 0)):
+            manualMapLabelToOverrides['electionResultsPrecinctName'] == precinct))] if type(manualMapLabelToOverrides) is pd.DataFrame else False
+        if ((type(overrides) is pd.DataFrame) and (overrides.size > 0)):
             # precinctID = overrides.at[0, 'precinct']
             precinctID = overrides.iat[0, 1]
             label = overrides.iat[0, 2]
