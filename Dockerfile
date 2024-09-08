@@ -11,7 +11,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y zip
 
 # INSTALL NODE
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 
 RUN apt-get install -y nodejs
 
 ENV SPARK_LOCAL_HOSTNAME=localhost
