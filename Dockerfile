@@ -25,8 +25,7 @@ RUN ./aws/install
 # only copy deps so this can act as a layer/faster rebuild
 RUN mkdir /opt/gavotesBackend
 WORKDIR /opt/gavotesBackend
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN pip3 install uv
 COPY package.json .
 RUN npm install
 
