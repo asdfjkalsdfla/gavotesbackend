@@ -19,7 +19,7 @@ class AbsenteeBallots:
         # change column names
         dfCleansed = self.dfBase.withColumnRenamed("County", "county").withColumnRenamed("County Precinct", "precinct")
         # Only look at accepted ballots
-        dfAccepted = dfCleansed.filter(self.dfBase["Ballot Status"] == "A")
+        dfAccepted = dfCleansed.filter(dfCleansed["Ballot Status"] == "A")
         
         # Summarize the data from ballot level to precinct level for performance reasons
         dfVotesByDate = dfAccepted.groupby(["county", "precinct", "Ballot Return Date"]).agg(F.count("Voter Registration #").alias("votesOnDate"))
