@@ -9,32 +9,32 @@ importers:
   .:
     dependencies:
       '@turf/simplify':
-        specifier: ^7.0.0
+        specifier: ^7.1.0
         version: 7.1.0
       '@turf/turf':
-        specifier: ^7.0.0
+        specifier: ^7.1.0
         version: 7.1.0
       adm-zip:
-        specifier: ^0.5.9
+        specifier: ^0.5.16
         version: 0.5.16
       argparse:
         specifier: ^2.0.1
         version: 2.0.1
       csv:
-        specifier: ^6.2.5
+        specifier: ^6.3.10
         version: 6.3.10
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
       progress:
-        specifier: ^2.0.1
+        specifier: ^2.0.3
         version: 2.0.3
       shapefile:
         specifier: ^0.6.6
         version: 0.6.6
       xml2js:
-        specifier: ^0.4.23
-        version: 0.4.23
+        specifier: ^0.6.2
+        version: 0.6.2
 
 packages:
 
@@ -526,8 +526,8 @@ packages:
   tslib@2.7.0:
     resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
 
-  xml2js@0.4.23:
-    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+  xml2js@0.6.2:
+    resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
     engines: {node: '>=4.0.0'}
 
   xmlbuilder@11.0.1:
@@ -1769,7 +1769,7 @@ snapshots:
 
   tslib@2.7.0: {}
 
-  xml2js@0.4.23:
+  xml2js@0.6.2:
     dependencies:
       sax: 1.4.1
       xmlbuilder: 11.0.1

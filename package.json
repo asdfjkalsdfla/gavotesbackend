@@ -1,14 +1,14 @@
 {
   "dependencies": {
-    "@turf/simplify": "^7.0.0",
-    "@turf/turf": "^7.0.0",
-    "adm-zip": "^0.5.9",
+    "@turf/simplify": "^7.1.0",
+    "@turf/turf": "^7.1.0",
+    "adm-zip": "^0.5.16",
     "argparse": "^2.0.1",
-    "csv": "^6.2.5",
+    "csv": "^6.3.10",
     "lodash": "^4.17.21",
-    "progress": "^2.0.1",
+    "progress": "^2.0.3",
     "shapefile": "^0.6.6",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.6.2"
   },
-  "packageManager": "pnpm@9.2.0+sha512.98a80fd11c2e7096747762304106432b3ddc67dcf54b5a8c01c93f68a2cd5e05e6821849522a06fb76284d41a2660d5e334f2ee3bbf29183bf2e739b1dafa771"
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }
