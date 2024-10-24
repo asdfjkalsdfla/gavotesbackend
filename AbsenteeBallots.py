@@ -27,21 +27,24 @@ class AbsenteeBallots:
         # Convert Ballot Return Date from string to actual date
         dfVotesByDate = dfVotesByDate.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
 
-        if self.idOverridesFile :
-            dfIDCorrections = self.spark.read.option("header", True).option("inferSchema", False).csv(self.idOverridesFile)
-            dfVotesByDate = dfVotesByDate.withColumnRenamed("precinct","absenteePrecinct")
-            dfVotesByDate = dfVotesByDate.join(dfIDCorrections, ["county", "absenteePrecinct"], how='left')
-            dfVotesByDate = dfVotesByDate.withColumn("precinct", F.upper(dfVotesByDate["precinct"]))
-
         # Cleansed Data
         cleansedData = dfVotesByDate.withColumn("county", F.upper(dfVotesByDate["county"]))
+        cleansedData = cleansedData.withColumn("county", F.when(F.col("county").startswith("BENHILL"),"BEN HILL").
+                                                when(F.col("county").startswith("JEFFDAVIS"),"JEFF DAVIS").
+                                                otherwise(F.col("county")))
+
+        if self.idOverridesFile :
+            dfIDCorrections = self.spark.read.option("header", True).option("inferSchema", False).csv(self.idOverridesFile)
+            cleansedData = cleansedData.withColumnRenamed("precinct","absenteePrecinct")
+            cleansedData = cleansedData.join(dfIDCorrections, ["county", "absenteePrecinct"], how='left')
+
         cleansedData = cleansedData.withColumn("precinct", F.upper(cleansedData["precinct"]))
 
         # Cache the value so we don't recompute it with every summary generated
         cleansedData = cleansedData.cache()
 
         # Set the base data property of the class
-        self.dfCleansedBaseData = dfVotesByDate
+        self.dfCleansedBaseData = cleansedData
 
     def summarizeDataAtLevel(self, level):
         # Check if we have created the base data / if not set the properties
@@ -68,6 +71,8 @@ class AbsenteeBallots:
         # Create a summary level and then days as an array off that
         dfCollected = dfTotalVotesToDateByDate.groupBy(level).agg(F.collect_list(F.struct(
             'DaysFromElection', 'DateDT', 'votesToDate', 'votesOnDate')).alias("votesByDay"))
+
+        # dfCollected.show(10)
 
         # Save the values
         self.summaries[levelName] = dfCollected
