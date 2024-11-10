@@ -90,6 +90,7 @@ const getContestResults = async (electionID, countySlug, county, contestID) => {
           .replace("Election Day", "Election Day Votes")
           .replace("Provisional", "Provisional Votes");
         const votes = result.voteCount;
+        totalVotesByMode = totalVotesByMode + votes; // update counter to get total votes
         if( votes > 0 )
           resultFileWriter.write(
             `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
