@@ -144,3 +144,19 @@ df = df.withColumnRenamed("Election Type","Election Type Description")
 
 df.write.mode("append").partitionBy("election").parquet("data/votehistory/data.parquet")
 exit()
+##############################################
+# Pull Out Election History
+##############################################
+import pyspark.pandas as ps
+dfVoterInfoFromAbsentee = ps.read_parquet("data/votehistory/dataVoters.parquet",index_col='id')
+dfVoterInfoFromAbsentee[( (dfVoterInfoFromAbsentee['lastName']=="TEST_LAST") & (dfVoterInfoFromAbsentee['firstName']=="TEST_FIRST") & (dfVoterInfoFromAbsentee['city']=="TEST"))].head(10)
+
+dfVoterHistory = ps.read_parquet("data/votehistory/data.parquet")
+dfVoterElectionTypes = ps.read_csv("data/votehistory/codes.txt")
+# votersByElection = dfVoterInfoFromAbsentee.groupby('election').agg(voters=('id','count'),electionType=('Election Type','min'), electionTypeDescription=('Election Type Description','min')).reset_index()
+votersByElection = dfVoterHistory.groupby('election').agg(voters=('id','count'),electionType=('Election Type','min')).reset_index()
+votersByElection = votersByElection.rename(columns={'election':'id'})
+votersByElection['name'] = votersByElection['id']
+votersByElection['electionType'] = votersByElection['electionType'].astype('int')
+votersByElection = ps.merge(votersByElection,dfVoterElectionTypes,how='left',on='electionType')
+votersByElection.to_json('data/voterHistory/elections.json')
