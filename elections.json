@@ -8,12 +8,12 @@
         "absenteeFileDir" : "./data/absentee/2024/",
         "absenteeFiles" : "./data/absentee/2024/data/*.csv",
         "absenteeFilesIDMap" : "./data/absenteeSummary/2024_general/2022_general_map_ids.csv",
-        "absenteeSummarize" : true,
+        "absenteeSummarize" : false,
         "resultsDownload" : false,
-        "resultsDownloadFile" : "TBD",
-        "resultsPrecinctNameToMapFile" : "TBD",
-        "resultsClarityID" : "TBD",
-        "resultsSummarize" : false
+        "resultsDownloadFile" : "./data/electionResults/2024/2024_general.csv",
+        "resultsPrecinctNameToMapFile" : "./data/electionResults/2024/2024_general_map_2022_ids.csv",
+        "resultsClarityID" : "2024NovGen",
+        "resultsSummarize" : true
     },
     {
         "name": "2022_runoff",

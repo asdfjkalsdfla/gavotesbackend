@@ -29,10 +29,10 @@ const getListOfCountyResultFiles = async (electionID, state) => {
 // Find the contest id for each country
 // ******************************************************
 const getRelevantContest = async (electionID, countySlug, county) => {
+  const url = `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items`;
+  // console.log(url);
   // get the current version of the overall result
-  const esRequest = await fetch(
-    `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items`
-  );
+  const esRequest = await fetch(url);
 
   if (!esRequest.ok) {
     console.error("Failed to get county file");
@@ -40,9 +40,11 @@ const getRelevantContest = async (electionID, countySlug, county) => {
 
   const esData = await esRequest.json();
   const ballotContest = esData.data;
+  // console.log(ballotContest);
   const contestOfInterest = ballotContest.filter((contest) =>
     contest.name[0].text.includes(races)
   );
+  // console.log(contestOfInterest);
   contestOfInterest.slice(0, 1).forEach((contest) => {
     const contestID = contest.id;
     getContestResults(electionID, countySlug, county, contestID);
@@ -53,10 +55,11 @@ const getRelevantContest = async (electionID, countySlug, county) => {
 // Get contest Results
 // ******************************************************
 const getContestResults = async (electionID, countySlug, county, contestID) => {
+  const url =  `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items/${contestID}`;
+  // console.log(url);
+  
   // get the current version of the overall result
-  const esRequest = await fetch(
-    `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items/${contestID}`
-  );
+  const esRequest = await fetch(url);
 
   if (!esRequest.ok) {
     console.error("Failed to get results file");
@@ -75,6 +78,10 @@ const getContestResults = async (electionID, countySlug, county, contestID) => {
         .replace("Dem", "democratic");
 
       const resultByMode = ballotOption.groupResults;
+
+      // Some counties don't include the mode
+      // this tracker lets us know how many details are reported
+      let totalVotesByMode = 0;
       resultByMode.forEach((result) => {
         const modeOriginal = result.groupName[0].text;
         const mode = modeOriginal
@@ -82,12 +89,21 @@ const getContestResults = async (electionID, countySlug, county, contestID) => {
           .replace("Advanced Voting", "Advance Voting Votes")
           .replace("Election Day", "Election Day Votes")
           .replace("Provisional", "Provisional Votes");
-        const votesOG = result.voteCount;
-        const votes = votesOG > 0 ? votesOG : 0;
-        resultFileWriter.write(
-          `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
-        );
+        const votes = result.voteCount;
+        if( votes > 0 )
+          resultFileWriter.write(
+            `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
+          );
       });
+
+      if(totalVotesByMode===0) {
+        const votes = ballotOption.voteCount;
+        const mode = "Unknown"
+        if( votes > 0 )
+          resultFileWriter.write(
+            `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
+          );
+      };
     });
   });
 };
