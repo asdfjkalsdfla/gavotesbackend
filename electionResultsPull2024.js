@@ -55,9 +55,9 @@ const getRelevantContest = async (electionID, countySlug, county) => {
 // Get contest Results
 // ******************************************************
 const getContestResults = async (electionID, countySlug, county, contestID) => {
-  const url =  `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items/${contestID}`;
+  const url = `https://results.sos.ga.gov/results/public/api/elections/${countySlug}/${electionID}/ballot-items/${contestID}`;
   // console.log(url);
-  
+
   // get the current version of the overall result
   const esRequest = await fetch(url);
 
@@ -74,8 +74,16 @@ const getContestResults = async (electionID, countySlug, county, contestID) => {
       const candidate = ballotOption.name[0].text;
       const partyOriginal = ballotOption.party.name[0].text;
       let party = partyOriginal
-        .replace("Rep", "republican")
-        .replace("Dem", "democratic");
+        .toUpperCase()
+        .replace("REP", "republican")
+        .replace("DEM", "democratic");
+      if (party === "") {
+        party = candidate.includes("Dem")
+          ? "democratic"
+          : candidate.includes("Rep")
+          ? "republican"
+          : "unknown";
+      }
 
       const resultByMode = ballotOption.groupResults;
 
@@ -91,20 +99,20 @@ const getContestResults = async (electionID, countySlug, county, contestID) => {
           .replace("Provisional", "Provisional Votes");
         const votes = result.voteCount;
         totalVotesByMode = totalVotesByMode + votes; // update counter to get total votes
-        if( votes > 0 )
+        if (votes > 0)
           resultFileWriter.write(
             `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
           );
       });
 
-      if(totalVotesByMode===0) {
+      if (totalVotesByMode === 0) {
         const votes = ballotOption.voteCount;
-        const mode = "Unknown"
-        if( votes > 0 )
+        const mode = "Unknown";
+        if (votes > 0)
           resultFileWriter.write(
             `"${races}","${county}","${precinctId}","${candidate}","${party}","${mode}",${votes}\n`
           );
-      };
+      }
     });
   });
 };
