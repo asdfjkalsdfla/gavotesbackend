@@ -149,7 +149,7 @@ exit()
 ##############################################
 import pyspark.pandas as ps
 dfVoterInfoFromAbsentee = ps.read_parquet("data/votehistory/dataVoters.parquet",index_col='id')
-dfVoterInfoFromAbsentee[( (dfVoterInfoFromAbsentee['lastName']=="TEST_LAST") & (dfVoterInfoFromAbsentee['firstName']=="TEST_FIRST") & (dfVoterInfoFromAbsentee['city']=="TEST"))].head(10)
+print(dfVoterInfoFromAbsentee[( (dfVoterInfoFromAbsentee['lastName']=="Test") & (dfVoterInfoFromAbsentee['firstName']=="Test") & (dfVoterInfoFromAbsentee['city']=="Test"))].head(10))
 
 dfVoterHistory = ps.read_parquet("data/votehistory/data.parquet")
 dfVoterElectionTypes = ps.read_csv("data/votehistory/codes.txt")
