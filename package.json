@@ -4,11 +4,11 @@
     "@turf/turf": "^7.1.0",
     "adm-zip": "^0.5.16",
     "argparse": "^2.0.1",
-    "csv": "^6.3.10",
+    "csv": "^6.3.11",
     "lodash": "^4.17.21",
     "progress": "^2.0.3",
     "shapefile": "^0.6.6",
     "xml2js": "^0.6.2"
   },
-  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
+  "packageManager": "pnpm@9.15.1+sha512.1acb565e6193efbebda772702950469150cf12bcc764262e7587e71d19dc98a423dff9536e57ea44c49bdf790ff694e83c27be5faa23d67e0c033b583be4bfcf"
 }
