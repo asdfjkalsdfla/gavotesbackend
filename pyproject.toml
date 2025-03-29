@@ -13,6 +13,6 @@ dependencies = [
     "pyspark==4.0.0.dev2",
     "python-levenshtein>=0.26.1",
     "ruff>=0.9.5",
-    "setuptools>=76.0.0",
+    "setuptools>=78.1.0",
     "thefuzz>=0.22.1",
 ]
