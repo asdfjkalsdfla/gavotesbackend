@@ -12,6 +12,6 @@ dependencies = [
     "pyarrow>=20.0.0",
     "pyspark==4.0.0",
     "python-levenshtein>=0.27.1",
-    "ruff>=0.12.1",
+    "ruff>=0.12.2",
     "thefuzz>=0.22.1",
 ]
