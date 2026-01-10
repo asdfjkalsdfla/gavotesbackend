@@ -10,8 +10,8 @@ dependencies = [
     "numpy==1.26.4",
     "pandas>=2.3.3",
     "pyarrow>=22.0.0",
-    "pyspark==4.1.0",
+    "pyspark==4.1.1",
     "python-levenshtein>=0.27.3",
-    "ruff>=0.14.10",
+    "ruff>=0.14.11",
     "thefuzz>=0.22.1",
 ]
