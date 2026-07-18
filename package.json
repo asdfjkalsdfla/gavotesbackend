@@ -2,13 +2,13 @@
   "dependencies": {
     "@turf/simplify": "^7.3.5",
     "@turf/turf": "^7.3.5",
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.6.0",
     "argparse": "^3.0.0",
-    "csv": "^6.5.1",
+    "csv": "^6.6.1",
     "lodash": "^4.18.1",
     "progress": "^2.0.3",
     "shapefile": "^0.6.6",
     "xml2js": "^0.6.2"
   },
-  "packageManager": "pnpm@11.0.9+sha512.34ce82e6780233cf9cad8685029a8f81d2e06196c5a9bad98879f7424940c6817c4e4524fb7d38b8553ceed48b9758b8ebaf1abd3600c232c4c8cf7366086f38"
+  "packageManager": "pnpm@11.15.0+sha512.266f8957a30d2be6e9468e5e66bcdedd35a794175f71b067ba8504d686cce1d0c0f429b33c323c3c569ad4891e667574a49ff71d1b89a22cc66f13c65818c578"
 }
