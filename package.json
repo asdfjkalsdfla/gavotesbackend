@@ -3,7 +3,7 @@
     "@turf/simplify": "^7.3.5",
     "@turf/turf": "^7.3.5",
     "adm-zip": "^0.5.17",
-    "argparse": "^2.0.1",
+    "argparse": "^3.0.0",
     "csv": "^6.5.1",
     "lodash": "^4.18.1",
     "progress": "^2.0.3",
