@@ -14,7 +14,13 @@ def create_spark_session():
     return SparkSession.builder \
         .master("local[6]") \
         .appName("GAVotesVisual") \
+        .config("spark.driver.memory", "8g") \
+        .config("spark.executor.memory", "8g") \
+        .config("spark.driver.maxResultSize", "4g") \
         .getOrCreate()
+        # .config("spark.sql.parquet.enableVectorizedReader", "false") \
+        
+
 
 
 def build_voter_profiles_from_absentee(spark, incremental=False):
@@ -120,67 +126,77 @@ def build_voter_profiles_from_absentee(spark, incremental=False):
 
 
 def load_voter_history_pre2023_to_parquet(spark):
-    schema = StructType() \
-        .add("County Number", IntegerType(), True) \
-        .add("Registration Number", IntegerType(), True) \
-        .add("Election Date", DateType(), True) \
-        .add("Election Type", IntegerType(), True) \
-        .add("Party", StringType(), True) \
-        .add("Absentee", StringType(), True) \
-        .add("Provisional", StringType(), True) \
-        .add("Supplemental", StringType(), True)
+    expectedColumns = [
+        "County Number", "Registration Number", "Election Date", "Election Type",
+        "Party", "Absentee", "Provisional", "Supplemental",
+    ]
 
-    df = spark.read.options(delimiter=",", header=True, dateFormat="yyyyMMdd", ignoreTrailingWhiteSpace=True) \
-        .schema(schema).csv("data/votehistory/data/*.csv")
+    # Reading the whole glob in one shot forces Spark to bind every file's
+    # rows to a single shared column order (taken from whichever file it
+    # samples first) *positionally*, regardless of that file's own header
+    # order. Files here don't all use the same physical column order, so we
+    # read + normalize each file individually (each file's own header
+    # correctly determines its own column order) and union the results.
+    files = sorted(glob.glob("data/votehistory/data/*.csv"))
+    dfAll = None
+    for file in files:
+        dfFile = spark.read.options(delimiter=",", header=True, enforceSchema=False, ignoreTrailingWhiteSpace=True) \
+            .csv(file)
 
-    df = df.withColumns({
-        "Absentee": F.when(F.col("Absentee") == "Y", True).otherwise(False),
-        "Provisional": F.when(F.col("Provisional") == "Y", True).otherwise(False),
-        "Supplemental": F.when(F.col("Supplemental") == "Y", True).otherwise(False),
-    }).withColumnsRenamed({
-        "Registration Number": "id",
-        "County Number": "county",
-        "Election Date": "election",
-        "Party": "party",
-        "Absentee": "absentee",
-        "Provisional": "provisional",
-        "Supplemental": "supplemental",
-    })
+        missing = [c for c in expectedColumns if c not in dfFile.columns]
+        if missing:
+            raise ValueError(f"{file} is missing expected column(s): {missing}")
 
-    df.write.mode("overwrite").partitionBy("election").parquet("data/votehistory/data.parquet")
+        dfFile = dfFile.select(
+            F.col("County Number").cast(IntegerType()).alias("county"),
+            F.col("Registration Number").cast(IntegerType()).alias("id"),
+            F.to_date(F.col("Election Date"), "yyyyMMdd").alias("election"),
+            F.col("Election Type").cast(IntegerType()).alias("Election Type"),
+            F.col("Party").alias("party"),
+            (F.col("Absentee") == "Y").alias("absentee"),
+            (F.col("Provisional") == "Y").alias("provisional"),
+            (F.col("Supplemental") == "Y").alias("supplemental"),
+        )
+        dfAll = dfFile if dfAll is None else dfAll.unionByName(dfFile)
+
+    dfAll.write.mode("overwrite").partitionBy("election").parquet("data/votehistory/data.parquet")
 
 
 def load_voter_history_2023_to_parquet(spark):
-    schema = StructType() \
-        .add("County Name", StringType(), True) \
-        .add("Voter Registration Number", IntegerType(), True) \
-        .add("Election Date", DateType(), True) \
-        .add("Election Type", StringType(), True) \
-        .add("Party", StringType(), True) \
-        .add("Ballot Style", StringType(), True) \
-        .add("Absentee", StringType(), True) \
-        .add("Provisional", StringType(), True) \
-        .add("Supplemental", StringType(), True)
+    expectedColumns = [
+        "County Name", "Voter Registration Number", "Election Date", "Election Type",
+        "Party", "Ballot Style", "Absentee", "Provisional", "Supplemental",
+    ]
 
-    df = spark.read.options(delimiter=",", header=True, dateFormat="MM/dd/yyyy", ignoreTrailingWhiteSpace=True) \
-        .schema(schema).csv("data/votehistory/2024.csv")
+    # See load_voter_history_pre2023_to_parquet: reading the whole glob at
+    # once binds every file's rows to one shared column order positionally,
+    # which silently corrupts files whose header order differs (e.g. some
+    # files here have "Election Date"/"County Name" swapped). Read + normalize
+    # each file individually instead.
+    files = sorted(glob.glob("data/votehistory/data/*.csv"))
+    dfAll = None
+    for file in files:
+        dfFile = spark.read.options(delimiter=",", header=True, enforceSchema=False, ignoreTrailingWhiteSpace=True) \
+            .csv(file)
 
-    df = df.withColumns({
-        "Absentee": F.when(F.col("Absentee") == "Y", True).otherwise(False),
-        "Provisional": F.when(F.col("Provisional") == "Y", True).otherwise(False),
-        "Supplemental": F.when(F.col("Supplemental") == "Y", True).otherwise(False),
-        "Party": F.when(F.col("Party") == "DEMOCRAT", "D").when(F.col("Party") == "REPUBLICAN", "R").otherwise(""),
-    }).withColumnsRenamed({
-        "Voter Registration Number": "id",
-        "Election Date": "election",
-        "Party": "party",
-        "Absentee": "absentee",
-        "Provisional": "provisional",
-        "Supplemental": "supplemental",
-        "Election Type": "Election Type Description",
-    })
+        missing = [c for c in expectedColumns if c not in dfFile.columns]
+        if missing:
+            raise ValueError(f"{file} is missing expected column(s): {missing}")
 
-    df.write.mode("append").partitionBy("election").parquet("data/votehistory/data.parquet")
+        dfFile = dfFile.select(
+            F.col("County Name").alias("County Name"),
+            F.col("Voter Registration Number").cast(IntegerType()).alias("id"),
+            F.to_date(F.col("Election Date"), "MM/dd/yyyy").alias("election"),
+            F.col("Election Type").alias("Election Type Description"),
+            F.when(F.col("Party") == "DEMOCRAT", "D").when(F.col("Party") == "REPUBLICAN", "R").otherwise("").alias("party"),
+            F.col("Ballot Style").alias("Ballot Style"),
+            (F.col("Absentee") == "Y").alias("absentee"),
+            (F.col("Provisional") == "Y").alias("provisional"),
+            (F.col("Supplemental") == "Y").alias("supplemental"),
+        )
+        dfAll = dfFile if dfAll is None else dfAll.unionByName(dfFile)
+
+    dfAll.write.mode("append").partitionBy("election").parquet("data/votehistory/data.parquet")
 
 
 def build_voter_history(spark):
@@ -256,5 +272,8 @@ def pull_election_history():
 
 if __name__ == "__main__":
     spark = create_spark_session()
-    build_voter_profiles_from_absentee(spark, incremental=True)
+    # build_voter_profiles_from_absentee(spark, incremental=True)
+    # load_voter_history_2023_to_parquet(spark)
+    build_voter_history(spark)
+    # summarize_voter_history(spark)
     # search_voter("Test", "Test", "Test")
