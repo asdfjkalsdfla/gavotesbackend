@@ -238,7 +238,7 @@ def build_voter_history(spark):
     ).alias("Item")
 
     dfDynamo = dfWithAll.select(item_struct)
-    # dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/test_dynamodb.json.gz")
+    # dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/voters_dynamodb.json.gz")
 
 
     dfLastVoted = df.groupby("id").agg(F.max(F.col("election")).alias("electionLastVoted"))
@@ -326,15 +326,41 @@ def search_voter(last_name, first_name, city):
 
 
 def pull_election_history(spark=None):
-    dfVoterHistory = spark.read.parquet("data/votehistory/data.parquet")
+    dfVoterHistory = spark.read.option("mergeSchema", "true").parquet("data/votehistory/data.parquet").filter(F.col("election").isNotNull())
     dfVoterElectionTypes = spark.read.options(header=True, delimiter=",").csv("data/votehistory/codes.txt")
 
+    dfCodes = dfVoterElectionTypes.withColumn("electionType", F.col("electionType").cast(IntegerType()))
+
+    has_et = "Election Type" in dfVoterHistory.columns
+    has_etd = "Election Type Description" in dfVoterHistory.columns
+
+    et_col = F.min(F.col("Election Type")).cast(IntegerType()) if has_et else F.lit(None).cast(IntegerType())
+    etd_col = F.min(F.col("Election Type Description")) if has_etd else F.lit(None)
+
+    # Aggregate by election date first across voter records
     votersByElection = dfVoterHistory.groupBy("election").agg(
         F.count("id").alias("voters"),
-        F.min(F.col("Election Type")).cast(IntegerType()).alias("electionType")
+        et_col.alias("raw_electionType"),
+        etd_col.alias("raw_electionTypeDesc"),
     )
 
-    dfCodes = dfVoterElectionTypes.withColumn("electionType", F.col("electionType").cast(IntegerType()))
+    # Post-aggregation coercion to common electionType
+    desc_to_code = F.when(F.trim(F.col("raw_electionTypeDesc")) == "GENERAL PRIMARY", 1) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "GENERAL PRIMARY RUNOFF", 2) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "GENERAL", 3) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "GENERAL ELECTION RUNOFF", 4) \
+        .when(F.trim(F.col("raw_electionTypeDesc")).isin("SPECIAL ELECTION", "SPECIAL PRIMARY"), 5) \
+        .when(F.trim(F.col("raw_electionTypeDesc")).isin("SPECIAL RUNOFF", "SPECIAL ELECTION RUNOFF", "SPECIAL PRIMARY RUNOFF"), 6) \
+        .when(F.regexp_replace(F.trim(F.col("raw_electionTypeDesc")), "[- ]", "") == "NONPARTISAN", 7) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "SPECIAL/NON-PARTISAN", 8) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "RECALL", 9) \
+        .when(F.trim(F.col("raw_electionTypeDesc")) == "PPP", 10)
+
+    votersByElection = votersByElection.withColumn(
+        "electionType",
+        F.coalesce(F.col("raw_electionType"), desc_to_code)
+    )
+
     votersByElection = votersByElection.join(dfCodes, "electionType", how="left")
 
     votersByElection = votersByElection.withColumn("id", F.col("election").cast("string")) \
@@ -348,7 +374,7 @@ if __name__ == "__main__":
     spark = create_spark_session()
     # build_voter_profiles_from_absentee(spark, incremental=True)
     # load_voter_history_2023_to_parquet(spark)
-    build_voter_history(spark)
-    # pull_election_history(spark)
+    # build_voter_history(spark)
+    pull_election_history(spark)
     # summarize_voter_history(spark)
     # search_voter("Test", "Test", "Test")
