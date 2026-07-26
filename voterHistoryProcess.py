@@ -218,6 +218,11 @@ def build_voter_history(spark):
     )
     dfVotersByCityStreet.write.mode("overwrite").json("./data/voterHistory/county_city_street.json")
 
+    dfStreetsByCity = dfVoterWithLast.groupBy(["countyCurrent", "city"]).agg(
+        F.collect_set(F.col("streetName")).alias("streets")
+    )
+    dfStreetsByCity.write.mode("overwrite").json("./data/voterHistory/county_city.json")
+
 
 def summarize_voter_history(spark):
     cnt_cond = lambda cond: F.sum(F.when(cond, 1).otherwise(0))
