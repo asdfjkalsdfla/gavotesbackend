@@ -2,6 +2,12 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 import pyspark.pandas as ps
+import glob
+import os
+import shutil
+
+VOTER_PROFILES_OUTPUT = "data/votehistory/dataVoters.parquet"
+VOTER_PROFILES_OUTPUT_TMP = "data/votehistory/dataVoters_tmp.parquet"
 
 
 def create_spark_session():
@@ -11,7 +17,14 @@ def create_spark_session():
         .getOrCreate()
 
 
-def build_voter_profiles_from_absentee(spark):
+def build_voter_profiles_from_absentee(spark, incremental=False):
+    """Build voter profiles from the absentee data files.
+
+    When incremental=True, only elections marked "new": True in the
+    elections list below are read, and the result is merged with the
+    existing VOTER_PROFILES_OUTPUT parquet instead of reprocessing every
+    election from scratch.
+    """
     schema = StructType([StructField("CountyName", StringType(), True)]) \
         .add("Voter Registration #", IntegerType(), True) \
         .add("Last Name", StringType()) \
@@ -25,7 +38,14 @@ def build_voter_profiles_from_absentee(spark):
         .add("State", StringType(), True) \
         .add("Zip Code", StringType())
 
+    # Set "new": True on an election entry to mark its absentee files as not
+    # yet incorporated into VOTER_PROFILES_OUTPUT. When incremental=True, only
+    # elections marked "new" are read from disk; everything else is assumed to
+    # already be reflected in the existing parquet output.
     elections = [
+        {"election": "2026_primary_runoff", "priority": 2026.1, "new": True},
+        {"election": "2026_primary", "priority": 2026.0, "new": True},
+        {"election": "2025_general", "priority": 2025, "new": True},
         {"election": "2024", "priority": 2024.1},
         {"election": "2024_primary", "priority": 2024},
         {"election": "2023", "priority": 2023},
@@ -39,13 +59,22 @@ def build_voter_profiles_from_absentee(spark):
 
     dfAll = None
     for election in elections:
+        if incremental and not election.get("new", False):
+            continue
+        files = sorted(glob.glob(f"data/absentee/{election['election']}/data/*.csv"))
+        if not files:
+            continue
         dfNew = spark.read.options(delimiter=",", header=True, dateFormat="yyyyMMdd", ignoreTrailingWhiteSpace=True) \
-            .schema(schema).csv(f"data/absentee/{election['election']}/data/*.csv")
+            .schema(schema).csv(files)
         dfNew = dfNew.withColumn("absenteeDataYear", F.lit(election["priority"]))
         if dfAll is None:
             dfAll = dfNew
         else:
             dfAll = dfNew.unionByName(dfAll)
+
+    if incremental and dfAll is None:
+        print("No new absentee files found since last run, skipping voter profile rebuild.")
+        return
 
     dfAll = dfAll.withColumnsRenamed({
         "Voter Registration #": "id",
@@ -70,9 +99,24 @@ def build_voter_profiles_from_absentee(spark):
         "countyCurrent": F.initcap(F.col("countyCurrent")),
     })
 
+    if incremental and os.path.exists(VOTER_PROFILES_OUTPUT):
+        dfExisting = spark.read.parquet(VOTER_PROFILES_OUTPUT)
+        dfAll = dfAll.unionByName(dfExisting)
+
     dfLatestYear = dfAll.groupby("id").agg(F.max(F.col("absenteeDataYear")).alias("absenteeDataYear"))
     dfVoterInfoFromAbsentee = dfLatestYear.join(dfAll, ["id", "absenteeDataYear"], how="inner").distinct()
-    dfVoterInfoFromAbsentee.write.mode("overwrite").partitionBy("countyCurrent").parquet("data/votehistory/dataVoters.parquet")
+
+    if incremental and os.path.exists(VOTER_PROFILES_OUTPUT):
+        # Write to a temp location first since we're reading from
+        # VOTER_PROFILES_OUTPUT above; overwriting it directly would corrupt
+        # the source data mid-read.
+        if os.path.exists(VOTER_PROFILES_OUTPUT_TMP):
+            shutil.rmtree(VOTER_PROFILES_OUTPUT_TMP)
+        dfVoterInfoFromAbsentee.write.mode("overwrite").partitionBy("countyCurrent").parquet(VOTER_PROFILES_OUTPUT_TMP)
+        shutil.rmtree(VOTER_PROFILES_OUTPUT)
+        shutil.move(VOTER_PROFILES_OUTPUT_TMP, VOTER_PROFILES_OUTPUT)
+    else:
+        dfVoterInfoFromAbsentee.write.mode("overwrite").partitionBy("countyCurrent").parquet(VOTER_PROFILES_OUTPUT)
 
 
 def load_voter_history_pre2023_to_parquet(spark):
@@ -212,4 +256,5 @@ def pull_election_history():
 
 if __name__ == "__main__":
     spark = create_spark_session()
-    search_voter("Test", "Test", "Test")
+    build_voter_profiles_from_absentee(spark, incremental=True)
+    # search_voter("Test", "Test", "Test")
