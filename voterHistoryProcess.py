@@ -211,14 +211,14 @@ def build_voter_history(spark):
     # dfWithAll.write.mode("overwrite").json("./data/voterHistory/test.json")
 
     # Generate DynamoDB JSON format compressed with Gzip
-    history_item = F.struct(
+    history_item = lambda h: F.struct(
         F.struct(
-            F.struct(F.col("h.election").cast("string").alias("S")).alias("election"),
-            F.struct(F.col("h.county").cast("string").alias("N")).alias("county"),
-            F.struct(F.col("h.party").alias("S")).alias("party"),
-            F.struct(F.col("h.absentee").alias("BOOL")).alias("absentee"),
-            F.struct(F.col("h.provisional").alias("BOOL")).alias("provisional"),
-            F.struct(F.col("h.supplemental").alias("BOOL")).alias("supplemental"),
+            F.struct(h["election"].cast("string").alias("S")).alias("election"),
+            F.struct(h["county"].cast("string").alias("N")).alias("county"),
+            F.struct(h["party"].alias("S")).alias("party"),
+            F.struct(h["absentee"].alias("BOOL")).alias("absentee"),
+            F.struct(h["provisional"].alias("BOOL")).alias("provisional"),
+            F.struct(h["supplemental"].alias("BOOL")).alias("supplemental"),
         ).alias("M")
     )
 
@@ -234,11 +234,11 @@ def build_voter_history(spark):
         F.struct(F.col("state").alias("S")).alias("state"),
         F.struct(F.col("zip").alias("S")).alias("zip"),
         F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
-        F.struct(F.transform(F.col("voterHistory"), lambda h: history_item)).alias("voterHistory"),
+        F.struct(F.transform(F.col("voterHistory"), history_item)).alias("voterHistory"),
     )
 
     dfDynamo = dfWithAll.select(F.struct(item_struct.alias("Item")).alias("Item"))
-    dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/test_dynamodb.json.gz")
+    # dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/test_dynamodb.json.gz")
 
 
     dfLastVoted = df.groupby("id").agg(F.max(F.col("election")).alias("electionLastVoted"))
@@ -247,12 +247,40 @@ def build_voter_history(spark):
     dfVotersByCityStreet = dfVoterWithLast.groupBy(["countyCurrent", "city", "streetName"]).agg(
         F.collect_list(F.struct("id", "firstName", "lastName", "electionLastVoted")).alias("voters")
     )
-    dfVotersByCityStreet.write.mode("overwrite").json("./data/voterHistory/county_city_street.json")
+    # dfVotersByCityStreet.write.mode("overwrite").json("./data/voterHistory/county_city_street.json")
+
+    voter_item = lambda v: F.struct(
+        F.struct(
+            F.struct(v["id"].cast("string").alias("N")).alias("id"),
+            F.struct(v["firstName"].alias("S")).alias("firstName"),
+            F.struct(v["lastName"].alias("S")).alias("lastName"),
+            F.struct(v["electionLastVoted"].cast("string").alias("S")).alias("electionLastVoted"),
+        ).alias("M")
+    )
+
+    street_item_struct = F.struct(
+        F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city"), F.col("streetName")).alias("S")).alias("id"),
+        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
+        F.struct(F.col("city").alias("S")).alias("city"),
+        F.struct(F.col("streetName").alias("S")).alias("streetName"),
+        F.struct(F.transform(F.col("voters"), voter_item).alias("L")).alias("voters"),
+    )
+    dfVotersByCityStreetDynamo = dfVotersByCityStreet.select(F.struct(street_item_struct.alias("Item")).alias("Item"))
+    dfVotersByCityStreetDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/county_city_street_dynamodb.json.gz")
 
     dfStreetsByCity = dfVoterWithLast.groupBy(["countyCurrent", "city"]).agg(
         F.collect_set(F.col("streetName")).alias("streets")
     )
-    dfStreetsByCity.write.mode("overwrite").json("./data/voterHistory/county_city.json")
+    # dfStreetsByCity.write.mode("overwrite").json("./data/voterHistory/county_city.json")
+
+    city_item_struct = F.struct(
+        F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city")).alias("S")).alias("id"),
+        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
+        F.struct(F.col("city").alias("S")).alias("city"),
+        F.struct(F.col("streets").alias("SS")).alias("streets"),
+    )
+    dfStreetsByCityDynamo = dfStreetsByCity.select(F.struct(city_item_struct.alias("Item")).alias("Item"))
+    dfStreetsByCityDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/county_city_dynamodb.json.gz")
 
 
 def summarize_voter_history(spark):
@@ -295,19 +323,23 @@ def search_voter(last_name, first_name, city):
     print(result.head(10))
 
 
-def pull_election_history():
-    dfVoterHistory = ps.read_parquet("data/votehistory/data.parquet")
-    dfVoterElectionTypes = ps.read_csv("data/votehistory/codes.txt")
+def pull_election_history(spark=None):
+    dfVoterHistory = spark.read.parquet("data/votehistory/data.parquet")
+    dfVoterElectionTypes = spark.read.options(header=True, delimiter=",").csv("data/votehistory/codes.txt")
 
-    votersByElection = dfVoterHistory.groupby("election").agg(
-        voters=("id", "count"),
-        electionType=("Election Type", "min"),
-    ).reset_index()
-    votersByElection = votersByElection.rename(columns={"election": "id"})
-    votersByElection["name"] = votersByElection["id"]
-    votersByElection["electionType"] = votersByElection["electionType"].astype("int")
-    votersByElection = ps.merge(votersByElection, dfVoterElectionTypes, how="left", on="electionType")
-    votersByElection.to_json("data/voterHistory/elections.json")
+    votersByElection = dfVoterHistory.groupBy("election").agg(
+        F.count("id").alias("voters"),
+        F.min(F.col("Election Type")).cast(IntegerType()).alias("electionType")
+    )
+
+    dfCodes = dfVoterElectionTypes.withColumn("electionType", F.col("electionType").cast(IntegerType()))
+    votersByElection = votersByElection.join(dfCodes, "electionType", how="left")
+
+    votersByElection = votersByElection.withColumn("id", F.col("election").cast("string")) \
+                                       .withColumn("name", F.col("election").cast("string"))
+
+    dfStandard = votersByElection.select("id", "voters", "electionType", "name", "electionTypeName")
+    dfStandard.write.mode("overwrite").json("./data/voterHistory/elections.json")
 
 
 if __name__ == "__main__":
@@ -315,5 +347,6 @@ if __name__ == "__main__":
     # build_voter_profiles_from_absentee(spark, incremental=True)
     # load_voter_history_2023_to_parquet(spark)
     build_voter_history(spark)
+    # pull_election_history(spark)
     # summarize_voter_history(spark)
     # search_voter("Test", "Test", "Test")
