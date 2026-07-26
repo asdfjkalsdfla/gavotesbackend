@@ -227,7 +227,11 @@ def build_voter_history(spark):
 def summarize_voter_history(spark):
     cnt_cond = lambda cond: F.sum(F.when(cond, 1).otherwise(0))
 
+    with open("excludes.txt") as f:
+        excludeIds = [int(line.strip()) for line in f if line.strip()]
+
     dfVoterInfoFromAbsentee = spark.read.parquet("data/votehistory/dataVoters.parquet")
+    dfVoterInfoFromAbsentee = dfVoterInfoFromAbsentee.filter(~F.col("id").isin(excludeIds))
     df = spark.read.parquet("data/votehistory/data.parquet")
     df = dfVoterInfoFromAbsentee.join(df, "id", how="left")
 
