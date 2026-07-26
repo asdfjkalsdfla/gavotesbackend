@@ -208,7 +208,38 @@ def build_voter_history(spark):
     ).cache()
 
     dfWithAll = dfVoterInfoFromAbsentee.join(dfWithAllGrouped, "id", how="left")
-    dfWithAll.write.mode("overwrite").json("./data/voterHistory/test.json")
+    # dfWithAll.write.mode("overwrite").json("./data/voterHistory/test.json")
+
+    # Generate DynamoDB JSON format compressed with Gzip
+    history_item = F.struct(
+        F.struct(
+            F.struct(F.col("h.election").cast("string").alias("S")).alias("election"),
+            F.struct(F.col("h.county").cast("string").alias("N")).alias("county"),
+            F.struct(F.col("h.party").alias("S")).alias("party"),
+            F.struct(F.col("h.absentee").alias("BOOL")).alias("absentee"),
+            F.struct(F.col("h.provisional").alias("BOOL")).alias("provisional"),
+            F.struct(F.col("h.supplemental").alias("BOOL")).alias("supplemental"),
+        ).alias("M")
+    )
+
+    item_struct = F.struct(
+        F.struct(F.col("id").cast("string").alias("N")).alias("id"),
+        F.struct(F.col("absenteeDataYear").cast("string").alias("N")).alias("absenteeDataYear"),
+        F.struct(F.col("firstName").alias("S")).alias("firstName"),
+        F.struct(F.col("middleName").alias("S")).alias("middleName"),
+        F.struct(F.col("lastName").alias("S")).alias("lastName"),
+        F.struct(F.col("streetNumber").alias("S")).alias("streetNumber"),
+        F.struct(F.col("streetName").alias("S")).alias("streetName"),
+        F.struct(F.col("city").alias("S")).alias("city"),
+        F.struct(F.col("state").alias("S")).alias("state"),
+        F.struct(F.col("zip").alias("S")).alias("zip"),
+        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
+        F.struct(F.transform(F.col("voterHistory"), lambda h: history_item)).alias("voterHistory"),
+    )
+
+    dfDynamo = dfWithAll.select(F.struct(item_struct.alias("Item")).alias("Item"))
+    dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/test_dynamodb.json.gz")
+
 
     dfLastVoted = df.groupby("id").agg(F.max(F.col("election")).alias("electionLastVoted"))
     dfVoterWithLast = dfVoterInfoFromAbsentee.join(dfLastVoted, "id", how="left")
