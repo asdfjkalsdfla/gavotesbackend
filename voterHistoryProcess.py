@@ -213,31 +213,31 @@ def build_voter_history(spark):
     # Generate DynamoDB JSON format compressed with Gzip
     history_item = lambda h: F.struct(
         F.struct(
-            F.struct(h["election"].cast("string").alias("S")).alias("election"),
-            F.struct(h["county"].cast("string").alias("N")).alias("county"),
-            F.struct(h["party"].alias("S")).alias("party"),
-            F.struct(h["absentee"].alias("BOOL")).alias("absentee"),
-            F.struct(h["provisional"].alias("BOOL")).alias("provisional"),
-            F.struct(h["supplemental"].alias("BOOL")).alias("supplemental"),
+            F.when(h["election"].isNotNull(), F.struct(h["election"].cast("string").alias("S"))).alias("election"),
+            F.when(h["county"].isNotNull(), F.struct(h["county"].cast("string").alias("N"))).alias("county"),
+            F.when(h["party"].isNotNull(), F.struct(h["party"].alias("S"))).alias("party"),
+            F.when(h["absentee"].isNotNull(), F.struct(h["absentee"].alias("BOOL"))).alias("absentee"),
+            F.when(h["provisional"].isNotNull(), F.struct(h["provisional"].alias("BOOL"))).alias("provisional"),
+            F.when(h["supplemental"].isNotNull(), F.struct(h["supplemental"].alias("BOOL"))).alias("supplemental"),
         ).alias("M")
     )
 
     item_struct = F.struct(
-        F.struct(F.col("id").cast("string").alias("N")).alias("id"),
-        F.struct(F.col("absenteeDataYear").cast("string").alias("N")).alias("absenteeDataYear"),
-        F.struct(F.col("firstName").alias("S")).alias("firstName"),
-        F.struct(F.col("middleName").alias("S")).alias("middleName"),
-        F.struct(F.col("lastName").alias("S")).alias("lastName"),
-        F.struct(F.col("streetNumber").alias("S")).alias("streetNumber"),
-        F.struct(F.col("streetName").alias("S")).alias("streetName"),
-        F.struct(F.col("city").alias("S")).alias("city"),
-        F.struct(F.col("state").alias("S")).alias("state"),
-        F.struct(F.col("zip").alias("S")).alias("zip"),
-        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
-        F.struct(F.transform(F.col("voterHistory"), history_item)).alias("voterHistory"),
-    )
+        F.when(F.col("id").isNotNull(), F.struct(F.col("id").cast("string").alias("N"))).alias("id"),
+        F.when(F.col("absenteeDataYear").isNotNull(), F.struct(F.col("absenteeDataYear").cast("string").alias("N"))).alias("absenteeDataYear"),
+        F.when(F.col("firstName").isNotNull(), F.struct(F.col("firstName").alias("S"))).alias("firstName"),
+        F.when(F.col("middleName").isNotNull(), F.struct(F.col("middleName").alias("S"))).alias("middleName"),
+        F.when(F.col("lastName").isNotNull(), F.struct(F.col("lastName").alias("S"))).alias("lastName"),
+        F.when(F.col("streetNumber").isNotNull(), F.struct(F.col("streetNumber").alias("S"))).alias("streetNumber"),
+        F.when(F.col("streetName").isNotNull(), F.struct(F.col("streetName").alias("S"))).alias("streetName"),
+        F.when(F.col("city").isNotNull(), F.struct(F.col("city").alias("S"))).alias("city"),
+        F.when(F.col("state").isNotNull(), F.struct(F.col("state").alias("S"))).alias("state"),
+        F.when(F.col("zip").isNotNull(), F.struct(F.col("zip").alias("S"))).alias("zip"),
+        F.when(F.col("countyCurrent").isNotNull(), F.struct(F.col("countyCurrent").alias("S"))).alias("countyCurrent"),
+        F.when(F.col("voterHistory").isNotNull(), F.struct(F.transform(F.col("voterHistory"), history_item).alias("L"))).alias("voterHistory"),
+    ).alias("Item")
 
-    dfDynamo = dfWithAll.select(F.struct(item_struct.alias("Item")).alias("Item"))
+    dfDynamo = dfWithAll.select(item_struct)
     # dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/test_dynamodb.json.gz")
 
 
@@ -251,21 +251,21 @@ def build_voter_history(spark):
 
     voter_item = lambda v: F.struct(
         F.struct(
-            F.struct(v["id"].cast("string").alias("N")).alias("id"),
-            F.struct(v["firstName"].alias("S")).alias("firstName"),
-            F.struct(v["lastName"].alias("S")).alias("lastName"),
-            F.struct(v["electionLastVoted"].cast("string").alias("S")).alias("electionLastVoted"),
+            F.when(v["id"].isNotNull(), F.struct(v["id"].cast("string").alias("N"))).alias("id"),
+            F.when(v["firstName"].isNotNull() & (F.trim(v["firstName"]) != ""), F.struct(v["firstName"].alias("S"))).alias("firstName"),
+            F.when(v["lastName"].isNotNull() & (F.trim(v["lastName"]) != ""), F.struct(v["lastName"].alias("S"))).alias("lastName"),
+            F.when(v["electionLastVoted"].isNotNull() & (F.trim(v["electionLastVoted"].cast("string")) != ""), F.struct(v["electionLastVoted"].cast("string").alias("S"))).alias("electionLastVoted"),
         ).alias("M")
     )
 
     street_item_struct = F.struct(
-        F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city"), F.col("streetName")).alias("S")).alias("id"),
-        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
-        F.struct(F.col("city").alias("S")).alias("city"),
-        F.struct(F.col("streetName").alias("S")).alias("streetName"),
-        F.struct(F.transform(F.col("voters"), voter_item).alias("L")).alias("voters"),
-    )
-    dfVotersByCityStreetDynamo = dfVotersByCityStreet.select(F.struct(street_item_struct.alias("Item")).alias("Item"))
+        F.when(F.concat_ws("_", F.col("countyCurrent"), F.col("city"), F.col("streetName")).isNotNull(), F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city"), F.col("streetName")).alias("S"))).alias("id"),
+        F.when(F.col("countyCurrent").isNotNull() & (F.trim(F.col("countyCurrent")) != ""), F.struct(F.col("countyCurrent").alias("S"))).alias("countyCurrent"),
+        F.when(F.col("city").isNotNull() & (F.trim(F.col("city")) != ""), F.struct(F.col("city").alias("S"))).alias("city"),
+        F.when(F.col("streetName").isNotNull() & (F.trim(F.col("streetName")) != ""), F.struct(F.col("streetName").alias("S"))).alias("streetName"),
+        F.when(F.col("voters").isNotNull() & (F.size(F.col("voters")) > 0), F.struct(F.transform(F.col("voters"), voter_item).alias("L"))).alias("voters"),
+    ).alias("Item")
+    dfVotersByCityStreetDynamo = dfVotersByCityStreet.select(street_item_struct)
     dfVotersByCityStreetDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/county_city_street_dynamodb.json.gz")
 
     dfStreetsByCity = dfVoterWithLast.groupBy(["countyCurrent", "city"]).agg(
@@ -273,13 +273,15 @@ def build_voter_history(spark):
     )
     # dfStreetsByCity.write.mode("overwrite").json("./data/voterHistory/county_city.json")
 
+    clean_streets = F.filter(F.col("streets"), lambda s: s.isNotNull() & (F.trim(s) != ""))
+
     city_item_struct = F.struct(
-        F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city")).alias("S")).alias("id"),
-        F.struct(F.col("countyCurrent").alias("S")).alias("countyCurrent"),
-        F.struct(F.col("city").alias("S")).alias("city"),
-        F.struct(F.col("streets").alias("SS")).alias("streets"),
-    )
-    dfStreetsByCityDynamo = dfStreetsByCity.select(F.struct(city_item_struct.alias("Item")).alias("Item"))
+        F.when(F.concat_ws("_", F.col("countyCurrent"), F.col("city")).isNotNull(), F.struct(F.concat_ws("_", F.col("countyCurrent"), F.col("city")).alias("S"))).alias("id"),
+        F.when(F.col("countyCurrent").isNotNull() & (F.trim(F.col("countyCurrent")) != ""), F.struct(F.col("countyCurrent").alias("S"))).alias("countyCurrent"),
+        F.when(F.col("city").isNotNull() & (F.trim(F.col("city")) != ""), F.struct(F.col("city").alias("S"))).alias("city"),
+        F.when(F.size(clean_streets) > 0, F.struct(clean_streets.alias("SS"))).alias("streets"),
+    ).alias("Item")
+    dfStreetsByCityDynamo = dfStreetsByCity.select(city_item_struct)
     dfStreetsByCityDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/county_city_dynamodb.json.gz")
 
 
