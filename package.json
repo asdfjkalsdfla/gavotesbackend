@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "@turf/simplify": "^7.3.5",
-    "@turf/turf": "^7.3.5",
+    "@turf/simplify": "^7.4.0",
+    "@turf/turf": "^7.4.0",
     "adm-zip": "^0.6.0",
-    "argparse": "^3.0.0",
-    "csv": "^6.6.1",
+    "argparse": "^3.0.1",
+    "csv": "^6.6.3",
     "lodash": "^4.18.1",
     "progress": "^2.0.3",
     "shapefile": "^0.6.6",
