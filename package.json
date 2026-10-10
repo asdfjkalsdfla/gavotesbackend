@@ -7,6 +7,9 @@
     "csv": "^6.6.4",
     "lodash": "^4.18.1",
     "progress": "^2.0.3",
+    "puppeteer": "^25.13.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "shapefile": "^0.6.6",
     "xml2js": "^0.6.2"
   },
