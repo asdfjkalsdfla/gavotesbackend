@@ -42,4 +42,5 @@ def main():
             results.summarizeData(gbLevels)
             results.exportSummaries()
 
-main()
+if __name__ == "__main__":
+    main()

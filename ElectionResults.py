@@ -4,8 +4,10 @@ from pyspark.sql import Window
 import pyspark.sql.functions as F
 
 
+from datetime import datetime, timezone
+
 class ElectionResults:
-    def __init__(self, spark, election, electionDate, files, fileMapNamesToIDs):
+    def __init__(self, spark, election, electionDate, files, fileMapNamesToIDs, lastUpdated=None):
         self.spark = spark
         self.election = election
         self.electionDate = electionDate
@@ -14,6 +16,7 @@ class ElectionResults:
         self.fileMapNamesToIDs = fileMapNamesToIDs
         self.dfCleansedBaseData = None
         self.summaries = {}
+        self.lastUpdated = lastUpdated or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def cleanseBaseData(self):
        # Make sure we always have all parties
@@ -57,6 +60,7 @@ class ElectionResults:
         dfElectionSummarized = dfElectionSummarized.join(dfElectionCollected, ['race']+level)
         
         dfElectionSummarized = dfElectionSummarized.groupBy(level).agg(F.collect_list(F.struct("race","democratic","republican","other","resultsByMode")).alias("races"))
+        dfElectionSummarized = dfElectionSummarized.withColumn("lastUpdated", F.lit(self.lastUpdated))
         # Save the values
         self.summaries[levelName] = dfElectionSummarized
 

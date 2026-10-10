@@ -238,7 +238,7 @@ def build_voter_history(spark):
     ).alias("Item")
 
     dfDynamo = dfWithAll.select(item_struct)
-    # dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/voters_dynamodb.json.gz")
+    dfDynamo.write.mode("overwrite").option("compression", "gzip").json("./data/voterHistory/voters_dynamodb.json.gz")
 
 
     dfLastVoted = df.groupby("id").agg(F.max(F.col("election")).alias("electionLastVoted"))

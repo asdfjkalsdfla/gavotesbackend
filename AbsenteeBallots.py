@@ -3,8 +3,10 @@
 import pyspark.sql.functions as F
 from pyspark.sql import Window
 
+from datetime import datetime, timezone
+
 class AbsenteeBallots:
-    def __init__(self, spark, election, electionDate, files, idOverridesFile=False):
+    def __init__(self, spark, election, electionDate, files, idOverridesFile=False, lastUpdated=None):
         self.spark = spark
         self.election = election
         self.electionDate = electionDate
@@ -13,6 +15,7 @@ class AbsenteeBallots:
         self.idOverridesFile=idOverridesFile
         self.dfCleansedBaseData = None
         self.summaries = {}
+        self.lastUpdated = lastUpdated or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         
 
     def cleanseBaseData(self):
@@ -71,6 +74,7 @@ class AbsenteeBallots:
         # Create a summary level and then days as an array off that
         dfCollected = dfTotalVotesToDateByDate.groupBy(level).agg(F.collect_list(F.struct(
             'DaysFromElection', 'DateDT', 'votesToDate', 'votesOnDate')).alias("votesByDay"))
+        dfCollected = dfCollected.withColumn("lastUpdated", F.lit(self.lastUpdated))
 
         # dfCollected.show(10)
 
