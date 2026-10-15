@@ -25,19 +25,22 @@ class AbsenteeBallots:
         # Convert Ballot Return Date from string to actual date
         dfCleansed = dfCleansed.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
 
-        # Dates shouldn't be after yesterday (the day prior to the run date).
-        # Any dates after that haven't happened yet, so cap them at the day prior to the run.
-        maxAllowedDate = F.date_sub(F.to_date(F.lit(self.lastUpdated)), 1)
-        dfCleansed = dfCleansed.withColumn(
-            "DateDT",
-            F.when(F.col("DateDT") > maxAllowedDate, maxAllowedDate).otherwise(F.col("DateDT"))
-        )
+        # Dates shouldn't be after yesterday (the day prior to the run date),
+        # and should be no more than 15 days post the election date.
+        maxPriorRunDate = F.date_sub(F.to_date(F.lit(self.lastUpdated)), 1)
+        maxPostElectionDate = F.date_add(F.to_date(F.lit(self.electionDate)), 15)
+        maxAllowedDate = F.least(maxPriorRunDate, maxPostElectionDate)
+
         dfCleansed = dfCleansed.withColumn(
             "Ballot Return Date",
             F.when(
-                F.to_date("Ballot Return Date", "MM/dd/yyyy") > maxAllowedDate,
+                F.col("DateDT") > maxAllowedDate,
                 F.date_format(maxAllowedDate, "MM/dd/yyyy")
             ).otherwise(F.col("Ballot Return Date"))
+        )
+        dfCleansed = dfCleansed.withColumn(
+            "DateDT",
+            F.when(F.col("DateDT") > maxAllowedDate, maxAllowedDate).otherwise(F.col("DateDT"))
         )
 
         # Only look at accepted ballots
