@@ -21,14 +21,30 @@ class AbsenteeBallots:
     def cleanseBaseData(self):
         # change column names
         dfCleansed = self.dfBase.withColumnRenamed("County", "county").withColumnRenamed("County Precinct", "precinct")
-        # Only look at accepted ballots
-        dfAccepted = dfCleansed.filter(dfCleansed["Ballot Status"] == "A")
-        
-        # Summarize the data from ballot level to precinct level for performance reasons
-        dfVotesByDate = dfAccepted.groupby(["county", "precinct", "Ballot Return Date"]).agg(F.count("Voter Registration #").alias("votesOnDate"))
         
         # Convert Ballot Return Date from string to actual date
-        dfVotesByDate = dfVotesByDate.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
+        dfCleansed = dfCleansed.withColumn("DateDT", F.to_date("Ballot Return Date", "MM/dd/yyyy"))
+
+        # Dates shouldn't be after yesterday (the day prior to the run date).
+        # Any dates after that haven't happened yet, so cap them at the day prior to the run.
+        maxAllowedDate = F.date_sub(F.to_date(F.lit(self.lastUpdated)), 1)
+        dfCleansed = dfCleansed.withColumn(
+            "DateDT",
+            F.when(F.col("DateDT") > maxAllowedDate, maxAllowedDate).otherwise(F.col("DateDT"))
+        )
+        dfCleansed = dfCleansed.withColumn(
+            "Ballot Return Date",
+            F.when(
+                F.to_date("Ballot Return Date", "MM/dd/yyyy") > maxAllowedDate,
+                F.date_format(maxAllowedDate, "MM/dd/yyyy")
+            ).otherwise(F.col("Ballot Return Date"))
+        )
+
+        # Only look at accepted ballots
+        dfAccepted = dfCleansed.filter(dfCleansed["Ballot Status"] == "A")
+
+        # Summarize the data from ballot level to precinct level for performance reasons
+        dfVotesByDate = dfAccepted.groupby(["county", "precinct", "DateDT"]).agg(F.count("Voter Registration #").alias("votesOnDate"))
 
         # Cleansed Data
         cleansedData = dfVotesByDate.withColumn("county", F.upper(dfVotesByDate["county"]))
