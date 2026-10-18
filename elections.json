@@ -5,7 +5,7 @@
         "date": "2026-11-03",
         "absenteeElectionNumber": "a0pcs00000J6eJBAAZ",
         "absenteeUrl": "https://mvp.sos.ga.gov/s/voter-absentee-files?electionYear=2026&electionName=11%2F3%2F2026%20-%20NOVEMBER%203%2C%202026%20-%20GENERAL%20AND%20SPECIAL%20ELECTIONS&elecId=a0pcs00000J6eJBAAZ&countyName=&name=A-12601&page=voterAbsenteeFilesDetails",
-        "absenteeDownload": false,
+        "absenteeDownload": true,
         "absenteeFileDir": "./data/absentee/2026_general/",
         "absenteeFiles": "./data/absentee/2026_general/data/",
         "absenteeFilesIDMap": "./data/absenteeSummary/2024_general/2022_general_map_ids.csv",
