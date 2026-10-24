@@ -3,16 +3,16 @@ name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14.8,<3.15"
+requires-python = ">=3.15.1,<3.16"
 dependencies = [
     "argparse>=1.4.0",
-    "boto3>=1.43.114",
+    "boto3>=1.43.118",
     "duckdb>=2.0.0",
-    "numpy==2.5.3",
+    "numpy==2.5.4",
     "pandas>=2.3.3,<3.0",
     "pyarrow>=26.0.0",
     "pyspark==4.2.0",
     "python-levenshtein>=0.27.5",
-    "ruff>=0.16.10",
+    "ruff>=0.17.2",
     "thefuzz>=0.22.1",
 ]
